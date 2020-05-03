@@ -69,6 +69,27 @@ function parser(text) {
             });
             el = elem
         }
+
+         //Italic
+         if(el.includes("{")) {
+            linkElem = el.substring(
+                el.lastIndexOf("{") + 1, 
+                el.lastIndexOf("}")
+            );
+            el = el.split(/{|}/)
+
+            let elem = "";
+            el.forEach(e => {
+                if(e === linkElem) {
+                    e = e.split(",")
+                    const aria = e.length > 2 ? `aria-label="${e[2].trim()}"` : ""
+                    e = `<a href="${e[0]}" ${aria}>${e[1].trim()}</a>`
+                }
+                elem = elem + e
+            });
+            el = elem
+        }
+
         console.log(el)
 
     });
