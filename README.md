@@ -1,4 +1,4 @@
-i# The parser
+# The parser
 
 This program parses text to html.
 
