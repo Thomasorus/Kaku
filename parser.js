@@ -3,6 +3,7 @@ let currentList = null
 
 function parser(text) {
 
+    //Splitting text and removing empty strings
     text = text.split(/\n/g).filter(Boolean)
     Object.keys(text).forEach(k => (!text[k] && text[k] !== undefined) && delete text[k]);
 
@@ -10,20 +11,20 @@ function parser(text) {
     let count = 0;
 
     text.forEach(el => {
-        count++
         el = el.trim()
-
         let firstChar = el.charAt(0)
         let content = null
+        count++
+
         switch (firstChar) {
             case "#":
-                content = titles(el)
+                content = createTitle(el)
                 break;
             case ">":
-                content = quotes(el)
+                content = createQuote(el)
                 break;
             case "[":
-                content = images(el)
+                content = createImages(el)
                 break;
             case "-":
             case "?":
@@ -34,12 +35,12 @@ function parser(text) {
                 }
                 //If new el is different, finish list
                 else if (firstChar !== currentList && currentList.length > 0) {
-                    content = lists(el)
+                    content = createList(tempList)
                 }
                 //If new el is the last of page, finish list
                 else {
                     populateList(firstChar, el)
-                    content = lists(el)
+                    content = createList(tempList)
                 }
                 break;
             default:
@@ -48,19 +49,19 @@ function parser(text) {
         }
         if (content) {
             if (content.includes("*")) {
-                content = bold(content)
+                content = createBold(content)
             }
 
             if (content.includes("_")) {
-                content = italic(content)
+                content = createItalic(content)
             }
 
             if (content.includes("{")) {
-                content = links(content)
+                content = createLink(content)
             }
 
             if (content.includes("`")) {
-                content = code(content)
+                content = createCode(content)
             }
 
             finalText = finalText + content
@@ -88,7 +89,7 @@ function getListType(tempList) {
     return type
 }
 
-function lists(el) {
+function createList(el) {
     type = getListType(tempList)
     if (type === "ul" || type === "ol") {
         let listItems = ""
@@ -114,13 +115,13 @@ function lists(el) {
 
 function endList(el) {
     if (tempList.length === 0) {
-        return paragraph(el)
+        return createParagraph(el)
     } else {
-        return lists(el) + endList(el)
+        return createList(el) + endList(el)
     }
 }
 
-function paragraph(el) {
+function createParagraph(el) {
     return `<p>${el}</p>`
 }
 
@@ -129,16 +130,16 @@ function populateList(firstChar, el) {
     currentList = firstChar
 }
 
-function titles(el) {
+function createTitle(el) {
     const count = (el.match(/#/g)).length;
     return `<h${count}>${el.substring(1 + count)}</h${count}>`
 }
 
-function quotes(el) {
+function createQuote(el) {
     return `<blockquote>${el.substring(2)}</blockquote>`
 }
 
-function images(el) {
+function createImages(el) {
     let imgElem = el.substring(
         el.lastIndexOf("[") + 1,
         el.lastIndexOf("]")
@@ -163,7 +164,7 @@ function images(el) {
     return elem
 }
 
-function links(el) {
+function createLink(el) {
     let linkElem = el.substring(
         el.lastIndexOf("{") + 1,
         el.lastIndexOf("}")
@@ -182,7 +183,7 @@ function links(el) {
     return elem
 }
 
-function bold(el) {
+function createBold(el) {
     el = el.split(/(\*)/)
     let opening = true
     let elem = "";
@@ -199,7 +200,7 @@ function bold(el) {
     return elem
 }
 
-function italic(el) {
+function createItalic(el) {
     el = el.split(/(_)/)
     let opening = true
     let elem = "";
@@ -216,7 +217,7 @@ function italic(el) {
     return elem
 }
 
-function code(el) {
+function createCode(el) {
     el = el.split(/(`)/)
     let opening = true
     let elem = "";
