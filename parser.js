@@ -1,18 +1,18 @@
-
-
 let tempList = []
 let currentList = null
 
 function parser(text) {
+
     text = text.split(/\n/g).filter(Boolean)
     Object.keys(text).forEach(k => (!text[k] && text[k] !== undefined) && delete text[k]);
+
     let finalText = ""
     let count = 0;
 
     text.forEach(el => {
         count++
         el = el.trim()
-        
+
         let firstChar = el.charAt(0)
         let content = null
         switch (firstChar) {
@@ -28,40 +28,44 @@ function parser(text) {
             case "-":
             case "?":
             case "+":
+                //If new list or adding el to existing list
                 if (firstChar === currentList && count !== text.length || currentList === null && count !== text.length) {
-                    content = populateList(firstChar, el)
-                } 
-                else if(firstChar !== currentList &&  currentList.length > 0)  {
-                    content = lists(el)
-                    populateList(firstChar, el) 
+                    populateList(firstChar, el)
                 }
+                //If new el is different, finish list
+                else if (firstChar !== currentList && currentList.length > 0) {
+                    content = lists(el)
+                }
+                //If new el is the last of page, finish list
                 else {
-                    populateList(firstChar, el) 
+                    populateList(firstChar, el)
                     content = lists(el)
                 }
                 break;
             default:
-                    content = endList(el)
+                content = endList(el)
                 break;
         }
-
-        if(content) {
+        if (content) {
             if (content.includes("*")) {
                 content = bold(content)
             }
-    
+
             if (content.includes("_")) {
                 content = italic(content)
             }
-    
+
             if (content.includes("{")) {
                 content = links(content)
             }
-    
+
+            if (content.includes("`")) {
+                content = code(content)
+            }
+
             finalText = finalText + content
         }
     });
-
     return finalText
 }
 
@@ -112,7 +116,7 @@ function endList(el) {
     if (tempList.length === 0) {
         return paragraph(el)
     } else {
-        return lists(el) + paragraph(el)
+        return lists(el) + endList(el)
     }
 }
 
@@ -123,11 +127,10 @@ function paragraph(el) {
 function populateList(firstChar, el) {
     tempList.push(el)
     currentList = firstChar
-    return null
 }
 
 function titles(el) {
-    const count = (el.match(/#/g) || []).length;
+    const count = (el.match(/#/g)).length;
     return `<h${count}>${el.substring(1 + count)}</h${count}>`
 }
 
@@ -213,28 +216,38 @@ function italic(el) {
     return elem
 }
 
+function code(el) {
+    el = el.split(/(`)/)
+    let opening = true
+    let elem = "";
+    el.forEach(e => {
+        if (e === "`" && opening === true) {
+            e = "<code>"
+            opening = false
+        } else if (e === "`" && opening === false) {
+            e = "</code>"
+            opening = true
+        }
+        elem = elem + e
+    });
+    return elem
+}
 
-const demo = document.querySelector('textarea').textContent;
-// demo = `# This is a title
-// > Now I'm quoting stuff omagad
-// ## Damn, a second title
-// This simple text now has *bold text* and _italic text_ and *more bold text*.
-// How about a {https://duckduckgo.com, link, Link to duckduckgo} ?
-// [https://i.imgur.com/oJXNeQm.jpg, Sailor Jupiter, She has some poses like Bruce Lee]
-
-// - Bullet list 1
-// - Bullet list 2
-// - Bullet list 3
-
-// + Ordered list 1
-// + Ordered list 2
 
 
-// ? Descriptive list 1 : Definition 1
-// ? Descriptive list 2 : Definition 2`
-const html = parser(demo);
+//DEMO STUFF
 const formated = document.querySelector('.normal');
 const htmldemo = document.querySelector('.html');
+let demo = document.querySelector('textarea');
 
-formated.innerHTML = html;
-htmldemo.append(html);
+document.addEventListener('keyup', triggerDemo)
+
+function triggerDemo() {
+    let demotext = parser(demo.value)
+    formated.innerHTML = ""
+    htmldemo.textContent = ""
+    formated.innerHTML = demotext;
+    htmldemo.textContent = demotext;
+}
+
+triggerDemo()
