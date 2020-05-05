@@ -6,71 +6,83 @@ This simple text now has *bold text* and _italic text_ and *more bold text*.
 How about a {https://duckduckgo.com, link, Link to duckduckgo} ?
 [https://i.imgur.com/oJXNeQm.jpg, Sailor Jupiter, She has some poses like Bruce Lee]
 
+test 0
+
 - List 1
 - List 2
 - List 3
 
-bla
++ wow 1
++ wow 2
 
-- List 4
-- List 5
-- List 6
-
-bla
-
-1. wow 1
-2. wow 2
-
-
-test
 
 ? test 1 : def 1
 ? test 2 : def 2
 
-yeah
 `
 let tempList = []
+let currentList = null
 
 function parser(text) {
     text = text.split(/\n/g).filter(Boolean);
+    console.log({
+        text
+    })
     let finalText = ""
+    let count = 0;
 
     text.forEach(el => {
+        count++
         let firstChar = el.charAt(0)
+        let content = null
         switch (firstChar) {
             case "#":
-                el = titles(el)
+                content = titles(el)
                 break;
             case ">":
-                el = quotes(el)
+                content = quotes(el)
                 break;
             case "[":
-                el = images(el)
+                content = images(el)
                 break;
-            case "-": case "?":
-                el = populateList(el)
+            case "-":
+            case "?":
+            case "+":
+                console.log(firstChar, currentList)
+                if (firstChar === currentList && count !== text.length || currentList === null && count !== text.length) {
+                    content = populateList(firstChar, el)
+                } 
+                else if(count === text.length)  {
+                    content = populateList(firstChar, el) + lists(el)
+                }
+                else {
+                    content = lists(el)
+                    content = content + populateList(firstChar, el)
+                }
                 break;
-            default:
-                isNaN(parseInt(firstChar)) ? el = endList(el) : el = populateList(el)
+            default:     
+                console.log(el)
+                content = endList(el)
                 break;
         }
 
+
         //Bold
-        if (el.includes("*")) {
-            el = bold(el)
+        if (content.includes("*")) {
+            content = bold(el)
         }
 
         //Italic
-        if (el.includes("_")) {
-            el = italic(el)
+        if (content.includes("_")) {
+            content = italic(el)
         }
 
         //Links
-        if (el.includes("{")) {
-            el = links(el)
+        if (content.includes("{")) {
+            content = links(el)
         }
 
-        finalText = finalText + el
+        finalText = finalText + content
     });
 
     return finalText
@@ -78,32 +90,33 @@ function parser(text) {
 
 
 function getListType(tempList) {
-    listType = "";
-    switch (tempList[0].charAt(0)) {
-        case "-":
-            listType = 'ul'
-            break;
-        case "?":
-            listType = 'dl'
-            break;
-        default:
-            listType = 'ol'
-            break;
-    }
-    return listType
+    type = "";
+    if (tempList.length > 0) {
+        switch (tempList[0].charAt(0)) {
+            case "-":
+                type = 'ul'
+                break;
+            case "?":
+                type = 'dl'
+                break;
+            default:
+                type = 'ol'
+                break;
+        }
+    } else type = "ul"
+    return type
 }
 
 function lists(el) {
     type = getListType(tempList)
-    if(type === "ul" || type === "ol") {
+    if (type === "ul" || type === "ol") {
         let listItems = ""
         tempList.forEach(item => {
-            let subString = type === "ul" ? 1 : 2
-            listItems = listItems + `<li>${item.substring(subString).trim()}</li>`
+            listItems = listItems + `<li>${item.substring(1).trim()}</li>`
         });
         tempList = []
         listItems = `<${type}>${listItems}</${type}>\n`
-        return listItems + paragraph(el)
+        return listItems
     } else {
         let listItems = ""
         tempList.forEach(item => {
@@ -114,7 +127,7 @@ function lists(el) {
         });
         tempList = []
         listItems = `<${type}>${listItems}</${type}>\n`
-        return listItems + paragraph(el)
+        return listItems
     }
 }
 
@@ -122,7 +135,7 @@ function endList(el) {
     if (tempList.length === 0) {
         return paragraph(el)
     } else {
-        return lists(el)
+        return lists(el) + paragraph(el)
     }
 }
 
@@ -130,8 +143,9 @@ function paragraph(el) {
     return `<p>${el}</p>`
 }
 
-function populateList(el) {
+function populateList(firstChar, el) {
     tempList.push(el)
+    currentList = firstChar
     return ""
 }
 
