@@ -5,8 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parser test</title>
 </head>
-<body>
+<body style="display:flex;">
     
+<textarea name="demo1" id="demo" cols="50" rows="50" style="margin: 10px; display: none;">
+# This is a title
+> Now I'm quoting stuff omagad
+## Damn, a second title
+This simple text now has *bold text* and _italic text_ and *more bold text*.
+How about a {https://duckduckgo.com, link, Link to duckduckgo} ?
+[https://i.imgur.com/oJXNeQm.jpg, Sailor Jupiter, She has some poses like Bruce Lee]
+
+
+- Bullet list 1
+- Bullet list 2
+- Bullet list 3
+
+
++ Ordered list 1
++ Ordered list 2
+
+? Descriptive list 1 : Definition 1
+? Descriptive list 2 : Definition 2
+
+</textarea>
+    
+    <div class="normal" style="margin: 10px;"></div>
+
+    <code class="html" style="margin: 10px; max-width: 300px;"></code>
 </body>
 <script src="parser.js"></script>
 
