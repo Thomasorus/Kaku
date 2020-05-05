@@ -10,19 +10,34 @@ How about a {https://duckduckgo.com, link, Link to duckduckgo} ?
 - List 2
 - List 3
 
+bla
+
+- List 4
+- List 5
+- List 6
+
+bla
+
+1. wow 1
+2. wow 2
+
+
+test
+
+? test 1 : def 1
+? test 2 : def 2
+
 yeah
 `
 let tempList = []
-let listItems = ""
 
 function parser(text) {
     text = text.split(/\n/g).filter(Boolean);
-    let processed = false
     let finalText = ""
 
     text.forEach(el => {
-
-        switch (el.charAt(0)) {
+        let firstChar = el.charAt(0)
+        switch (firstChar) {
             case "#":
                 el = titles(el)
                 break;
@@ -32,11 +47,11 @@ function parser(text) {
             case "[":
                 el = images(el)
                 break;
-            case ("-"):
+            case "-": case "?":
                 el = populateList(el)
                 break;
             default:
-                el = endList(el)
+                isNaN(parseInt(firstChar)) ? el = endList(el) : el = populateList(el)
                 break;
         }
 
@@ -61,23 +76,58 @@ function parser(text) {
     return finalText
 }
 
-function endList(el) {
-    if (tempList.length === 0) {
-        return paragraph(el)
-    } else {
-        console.log('endlist')
+
+function getListType(tempList) {
+    listType = "";
+    switch (tempList[0].charAt(0)) {
+        case "-":
+            listType = 'ul'
+            break;
+        case "?":
+            listType = 'dl'
+            break;
+        default:
+            listType = 'ol'
+            break;
+    }
+    return listType
+}
+
+function lists(el) {
+    type = getListType(tempList)
+    if(type === "ul" || type === "ol") {
+        let listItems = ""
         tempList.forEach(item => {
-            listItems = listItems + `<li>${item.substring(1).trim()}</li>`
+            let subString = type === "ul" ? 1 : 2
+            listItems = listItems + `<li>${item.substring(subString).trim()}</li>`
         });
-        listItems = `<ul>${listItems}</ul>\n`
         tempList = []
+        listItems = `<${type}>${listItems}</${type}>\n`
+        return listItems + paragraph(el)
+    } else {
+        let listItems = ""
+        tempList.forEach(item => {
+            item = item.split(":")
+            const term = item[0].substring(1).trim()
+            const definition = item[1].trim()
+            listItems = listItems + `<dt>${term}</dt><dd>${definition}</dd>`
+        });
+        tempList = []
+        listItems = `<${type}>${listItems}</${type}>\n`
         return listItems + paragraph(el)
     }
 }
 
+function endList(el) {
+    if (tempList.length === 0) {
+        return paragraph(el)
+    } else {
+        return lists(el)
+    }
+}
+
 function paragraph(el) {
-    el = `<p>${el}</p>`
-    return el
+    return `<p>${el}</p>`
 }
 
 function populateList(el) {
