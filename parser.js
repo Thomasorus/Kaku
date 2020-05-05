@@ -5,19 +5,37 @@ const demo = `
 This simple text now has *bold text* and _italic text_ and *more bold text*.
 How about a {https://duckduckgo.com, link, Link to duckduckgo} ?
 [https://i.imgur.com/oJXNeQm.jpg, Sailor Jupiter, She has some poses like Bruce Lee]
+- List 1
+- List 2
+- List 3
+
+yeah
 `
 
 
 
 function parser(text) {
-    console.log(text)
     text = text.split(/\n/g).filter(Boolean);
-
+    let current = 0;
+    let tempList = [];
+    let listItems = "";
     let finalText = ""
-    text.forEach(el => {
 
+    text.forEach(el => {
+        current++
+        //Bullet list
+        if (el.charAt(0) !== "-" && tempList.length > 0 || el.charAt(0) === "-"  && current === text.length) {
+            tempList.forEach(item => {
+                listItems = listItems + `<li>${item.substring(1).trim()}</li>`
+            });
+            listItems = `<ul>${listItems}</ul>`
+            tempList = []
+        } else if (el.charAt(0) === "-") {
+            tempList.push(el)
+            el = ""
+        } 
         //Titles
-        if (el.includes("#")) {
+        else if (el.includes("#")) {
             const count = (el.match(/#/g) || []).length;
             el = `<h${count}>${el.substring(1 + count)}</h${count}>`
         }
@@ -42,14 +60,13 @@ function parser(text) {
                         <figure>
                         ${img}
                         <figcaption>${e[2].trim()}</figcaption>
-                        </figure>` 
-                        : img
+                        </figure>` :
+                        img
                     e = finalImage
                 }
                 elem = elem + e
             });
             el = elem
-
         }
         //Paragraph
         else {
@@ -92,7 +109,7 @@ function parser(text) {
             el = elem
         }
 
-        //Italic
+        //Links
         if (el.includes("{")) {
             linkElem = el.substring(
                 el.lastIndexOf("{") + 1,
@@ -111,7 +128,14 @@ function parser(text) {
             });
             el = elem
         }
-        finalText = finalText + el
+
+       
+        if (listItems.length > 0 && tempList.length === 0) {
+            finalText = finalText + listItems + el
+        } else {
+            
+
+        }
     });
 
     return finalText
