@@ -61,9 +61,9 @@ Will return :
 ### Ordered list
 
 ```
-1. Number 1
-2. Number 1
-3. Number 1
++ Number 1
++ Number 1
++ Number 1
 ```
 
 Will return :
