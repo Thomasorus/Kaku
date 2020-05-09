@@ -19,8 +19,6 @@ function assert(condition) {
 
 function parser(text) {
 
-    //Réfléchir par caractère
-
     const outBuffer = [];
     const acc = [];
     const status = {
@@ -30,9 +28,7 @@ function parser(text) {
         code: false,
     };
 
-    //Splitting text and removing empty strings
     const formated = text.replace(/\r\n/g, "\n");
-
 
     for(const c of formated) {
         if(acc.length && !isProcessing(status)){
