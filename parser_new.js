@@ -1,6 +1,3 @@
-// let tempList = []
-// let currentList = null
-
 const symbol = [
     "\n",
     "*",
@@ -100,13 +97,4 @@ function parser(text) {
     return outBuffer.join('');
 }
 
-const demo = `
-I do some \`code\`.
-
-Sometimes with *bold*.
-
-Sometimes with _italic_ ?
-
-`
-
-console.log(parser(demo));
+export {parser}

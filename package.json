@@ -1,0 +1,10 @@
+{"ava": {
+  "require": [
+    "esm"
+  ]
+},
+  "devDependencies": {
+    "ava": "^3.8.2",
+    "esm": "^3.2.25"
+  }
+}
