@@ -2,6 +2,12 @@
 
 This program parses text to html.
 
+## Run tests
+
+- Install with `yarn`
+- Configure tests in `test.js`
+- Run tests with `npx ava`
+
 ## Text
 
 Title 1 : `# Title`  => `<h1>Title</h1>`
