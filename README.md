@@ -1,14 +1,15 @@
-# The parser
+# Kaku 書く
 
-This program parses text to html.
+Kaku (write) is a parser for my own markup language.
+The markup is heavily inspired by Markdown with a few modification for link, image and list handling.
 
-## Run tests
+## Project state
 
-- Install with `yarn`
-- Configure tests in `test.js`
-- Run tests with `npx ava`
+This is an experiment more than a full fledged project and thus, several bugs may still be present. The code is un-optimised and probably unfinished. Feel free to fork or do a pull request.
 
-## Text
+## Syntax
+
+### Text
 
 Title 1 : `# Title`  => `<h1>Title</h1>`
 
@@ -22,9 +23,9 @@ Quote text : `> This is a citation` => `<blockquote>This is a citation</blockquo
 
 Code text : ``` `This is code` ``` => ` <code>This is code</code> `
 
-## Links
+### Links
 
-Links can have 3 arguments : 
+Links can have 3 arguments:
 
 1. The link url
 2. The text of the link
@@ -32,7 +33,7 @@ Links can have 3 arguments :
 
 Example: `{link_url, textlink, a11ylabel}` => `<a href="link_url" ara-label="a11ylabel">textlink</a>`
 
-## Images
+### Images
 
 The image tag is generated using `[]`. It has 3 arguments :
 
@@ -44,11 +45,9 @@ Image with alt text : `[imgname, altText]` => `<img src="imgname" alt="altText">
 
 Image with caption : `[imgname, altText, figcaptionText]` => `<figure><img src="imgname" alt="altText"></img><figaption>figcaptionText</figcaption></figure>`
 
-### Lists
-
 ### Bullet list
 
-```
+```html
 - AAA
 - BBB
 - CCC
@@ -66,7 +65,7 @@ Will return :
 
 ### Ordered list
 
-```
+```html
 + Number 1
 + Number 1
 + Number 1
@@ -82,10 +81,9 @@ Will return :
 </ol>
 ```
 
-
 ### Descriptive list
 
-```
+```html
 ? Term 1 : definition 1
 ? Term 2 : definition 2
 ```
@@ -98,13 +96,21 @@ Will return :
     <dd>definition 1</dd>
     <dt>Term 2</dt>
     <dd>definition 2</dd>
-</dl> 
+</dl>
 ```
 
-## Video
+### Video
 
 To be determined...
 
-## Audio
+### Audio
 
 To be determined...
+
+## Run tests
+
+This projects come with tests, even if some of them are broken. To run them:
+
+- Install with `yarn`
+- Configure tests in `test.js`
+- Run tests with `npx ava`
