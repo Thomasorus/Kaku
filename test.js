@@ -48,8 +48,8 @@ test('code finisher', t => {
 });
 
 test('italic', t => {
-	const result = p.parser("Sometimes with _italic_ text?");
-	t.is(result, "<p>Sometimes with <em>italic</em> text?</p>");
+	const result = p.parser("Sometimes with _italic_ text? ");
+	t.is(result, "<p>Sometimes with <em>italic</em> text? </p>");
 });
 
 test('italic finisher', t => {
@@ -71,48 +71,38 @@ test('paragraph', t => {
 
 // // LINKS
 
-// test('Link without A11Y label', t => {
-// 	const result = p.parser("{link_url, textlink} ");
-// 	t.is(result, `<a href="link_url">textlink</a>`);
-// });
+test('Link without A11Y label', t => {
+	const result = p.parser("{link_url, textlink}");
+	t.is(result, `<a href="link_url">textlink</a>`);
+});
 
-// test('Link with A11Y label', t => {
-// 	const result = p.parser("{link_url, textlink, a11ylabel} ");
-// 	t.is(result, `<a href="link_url" aria-label="a11ylabel">textlink</a>`);
-// });
+test('Link with A11Y label', t => {
+	const result = p.parser("{link_url, textlink, a11ylabel}");
+	t.is(result, `<a href="link_url" aria-label="a11ylabel">textlink</a>`);
+});
 
 // // IMAGES
 
-// test('Image basic', t => {
-// 	const result = p.parser("[imgname]");
-// 	t.is(result, `<img src="imgname"></img>`);
-// });
+test('Image basic', t => {
+	const result = p.parser("[imgname]");
+	t.is(result, `<img src="imgname"></img>`);
+});
 
-// test('Image with alt', t => {
-// 	const result = p.parser("[imgname, altText]");
-// 	t.is(result, `<img src="imgname" alt="altText"></img>`);
-// });
+test('Image with alt', t => {
+	const result = p.parser("[imgname, altText]");
+	t.is(result, `<img src="imgname" alt="altText"></img>`);
+});
 
-// test('Image with alt and caption', t => {
-// 	const result = p.parser("[imgname, altText, figcaptionText]");
-// 	t.is(result, `<figure><img src="imgname" alt="altText"></img><figaption>figcaptionText</figcaption></figure>`);
-// });
+test('Image with alt and caption', t => {
+	const result = p.parser("[imgname, altText, figcaptionText]");
+	t.is(result, `<figure><img src="imgname" alt="altText"></img><figcaption>figcaptionText</figcaption></figure>`);
+});
 
 // // LISTS
 
 // test('Bullet list', t => {
-// 	const result = p.parser(`
-// 		- AAA
-// 		- BBB
-// 		- CCC
-// 	`);
-// 	t.is(result, `
-// 		<ul>
-// 			<li>AAA</li>
-// 			<li>BBB</li>
-// 			<li>CCC</li>
-// 		</ul>
-// 	`);
+// 	const result = p.parser("\n- AAA\n- BBB\n- CCC\n");
+// 	t.is(result, "<ul><li>AAA</li><li>BBB</li><li>CCC</li></ul>");
 // });
 
 
