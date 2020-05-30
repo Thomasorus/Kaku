@@ -1,142 +1,307 @@
-let tempList = []
-let currentList = null
+const symbol = [
+    "\n",
+    "*",
+    "_",
+    "`",
+    ">",
+    "#",
+    "[",
+    "]",
+    "{",
+    "}",
+    "-",
+    "?",
+    "+"
+]
+
+function isProcessing(status) {
+    return status.bold || status.italic || status.code || status.blockquote || status.title || status.image || status.link || status.list
+}
+
+function assert(condition) {
+    if (condition) {
+        return
+    } else {
+        throw "Assert error";
+    }
+}
+
 
 function parser(text) {
 
-    //Splitting text and removing empty strings
-    text = text.split(/\n/g).filter(Boolean)
-    Object.keys(text).forEach(k => (!text[k] && text[k] !== undefined) && delete text[k]);
+    //outbuffer is the final rendered text
+    const outBuffer = [];
 
-    let finalText = ""
-    let count = 0;
+    //acc contains text being processed
+    const acc = [];
 
-    text.forEach(el => {
-        el = el.trim()
-        let firstChar = el.charAt(0)
-        let content = null
-        count++
+    let titleAcc = [];
+    let titleCount = "";
 
-        switch (firstChar) {
-            case "#":
-                content = createTitle(el)
-                break;
-            case ">":
-                content = createQuote(el)
-                break;
-            case "[":
-                content = createImages(el)
-                break;
-            case "-":
-            case "?":
-            case "+":
-                //If new list or adding el to existing list
-                if (firstChar === currentList && count !== text.length || currentList === null && count !== text.length) {
-                    populateList(firstChar, el)
-                }
-                //If new el is different, finish list
-                else if (firstChar !== currentList && currentList.length > 0) {
-                    content = createList(tempList)
-                }
-                //If new el is the last of page, finish list
-                else {
-                    populateList(firstChar, el)
-                    content = createList(tempList)
-                }
-                break;
-            default:
-                content = endList(el)
-                break;
+    const listAcc = []
+    let listType = undefined
+
+
+    //status define what type of text is being processed
+    const status = {
+        paragraph: false,
+        bold: false,
+        italic: false,
+        code: false,
+        citation: false,
+        space: false,
+        image: false,
+        link: false,
+        list: false,
+        linebreak: false
+    };
+
+
+    //Replacing line break chars
+    const formated = text.replace(/\r\n/g, "\n").replace(/\n\s*\n/g, '\n');
+
+
+    for (var i = 0; i < formated.length; ++i) {
+        const c = formated[i]
+
+        //If acc has value and no process is running
+        //Then push acc content into outBuffer
+        //Reset acc content
+        if(listAcc.length <= 0) {
+
+            if (acc.length && !isProcessing(status)) {
+                outBuffer.push(acc.join(''))
+                acc.length = 0    
+            }
         }
-        if (content) {
-            if (content.includes("*")) {
-                content = createBold(content)
+
+        //Check if character contains one of the symbols
+        const s = symbol.find(x => x == c)
+
+        //If not a syntax character
+        //And we're not processing anything
+        //Then push the symbol inside outbuffer
+        // PLUS checks if new line or end of document
+        if (!s && !isProcessing(status)) {
+            status.linebreak = false
+            if(listAcc.length) {
+                const lst = createList(listAcc, listType);
+                outBuffer.push(lst)
+                listAcc.length = 0
+                listType = undefined
+            }
+            if ((i + 1) == (formated.length) && status.paragraph) {
+                const p = `${c}</p>`;
+                status.paragraph = false;
+                outBuffer.push(p)
+                continue;
+            }
+            if (!status.paragraph && c !== " ") {
+                status.paragraph = true;
+                const p = `<p>${c}`;
+                outBuffer.push(p)
+                continue;
             }
 
-            if (content.includes("_")) {
-                content = createItalic(content)
-            }
-
-            if (content.includes("{")) {
-                content = createLink(content)
-            }
-
-            if (content.includes("`")) {
-                content = createCode(content)
-            }
-
-            finalText = finalText + content
+            outBuffer.push(c)
+            continue;
         }
-    });
-    return finalText
-}
 
+        //If a syntax character
+        if (!!s) {
+            //Then which one?
+            switch (s) {
+                // Symbols with similar starter and ender
+                case "*":
+                    //If status is true
+                    //End it
+                    //Add closing html into acc
+                    if (status.bold) {
+                        status.bold = false
+                        acc.push('</strong>')
+                    }
+                    //if status is true
+                    //start it
+                    //Push starting html into acc
+                    else {
+                        acc.push('<strong>')
+                        status.bold = true
+                    }
+                    if ((i + 1) == (formated.length) && status.paragraph) {
+                        acc.push('</p>')
+                        status.paragraph = false;
+                        if (acc.length && !isProcessing(status)) {
+                            outBuffer.push(acc.join('').trim())
+                        }
+                    }
+                    continue
+                case "_":
+                    if (status.link || status.image) {
+                        acc.push(c)
+                        continue
+                    }
+                    if (status.italic) {
+                        status.italic = false
+                        acc.push('</em>')
+                    } 
+                    else {
+                        acc.push('<em>')
+                        status.italic = true
+                    }
+                    if ((i + 1) == (formated.length) && status.paragraph) {
+                        acc.push('</p>')
+                        status.paragraph = false;
+                        if (acc.length && !isProcessing(status)) {
+                            outBuffer.push(acc.join('').trim())
+                        }
+                    }
+                    continue;
+                case "`":
+                    if (status.code) {
+                        status.code = false
+                        acc.push('</code>')
+                    } else {
+                        acc.push('<code>')
+                        status.code = true
+                    }
+                    if ((i + 1) == (formated.length) && status.paragraph) {
+                        acc.push('</p>')
+                        status.paragraph = false;
+                        if (acc.length && !isProcessing(status)) {
+                            outBuffer.push(acc.join('').trim())
+                        }
+                    }
+                    continue;
+                case ">":
+                    if (!status.blockquote) {
+                        acc.push('<blockquote>')
+                        status.blockquote = true
+                        status.space = true
+                    }
+                    continue;
+                case "#":
+                    titleAcc.push('#')
+                    status.title = true
+                    status.space = true
+                    continue;
+                case "[":
+                    acc.push(c)
+                    status.image = true
+                    continue
+                case "]":
+                    acc.push(c)
+                    const img = createImages(acc.join(''))
+                    acc.splice(0, acc.length)
+                    acc.push(img)
+                    status.image = false
+                    if ((i + 1) == (formated.length)) {
+                        if (acc.length && !isProcessing(status)) {
+                            outBuffer.push(acc.join('').trim())
+                        }
+                    }
+                    continue
+                case "{":
+                    acc.push(c)
+                    status.link = true
+                    continue
+                case "}":
+                    acc.push(c)
+                    const link = createLink(acc.join(''))
+                    acc.splice(0, acc.length)
+                    acc.push(link)
+                    status.link = false
+                    if ((i + 1) == (formated.length)) {
+                        if (acc.length && !isProcessing(status)) {
+                            outBuffer.push(acc.join('').trim())
+                        }
+                    }
+                    continue
+                case "-":
+                case "?":
+                case "+":
+                    if (status.linebreak) {
+                        if(status.list === false && listType !== c) {
+                            const lst = createList(listAcc, listType);
+                            outBuffer.push(lst)
+                            listAcc.length = 0
+                            listType = undefined
+                        } 
+                        status.list = true
+                        listType = c
+                        acc.push(c)
 
-function getListType(tempList) {
-    type = "";
-    if (tempList.length > 0) {
-        switch (tempList[0].charAt(0)) {
-            case "-":
-                type = 'ul'
-                break;
-            case "?":
-                type = 'dl'
-                break;
-            default:
-                type = 'ol'
-                break;
+                        
+                    } else {
+                        outBuffer.push(c)
+                    }
+
+                    continue
+                case "\n":
+                    status.linebreak = true
+
+                    if (status.paragraph) {
+                        acc.push('</p>')
+                        status.paragraph = false
+                    }
+                    if (status.blockquote) {
+                        acc.push('</blockquote>')
+                        status.blockquote = false
+                        if ((i + 1) == (formated.length)) {
+                            if (acc.length && !isProcessing(status)) {
+                                outBuffer.push(acc.join('').trim())
+                            }
+                        }
+                    }
+                    if (status.title) {
+                        acc.push(`</h${titleCount}>`)
+                        status.title = false
+                        if ((i + 1) == (formated.length)) {
+                            if (acc.length && !isProcessing(status)) {
+                                outBuffer.push(acc.join('').trim())
+                            }
+                        }
+                    }
+                    if (status.list) {
+                        acc.push(c)
+                        listAcc.push(acc.join('').trim())
+                        status.list = false
+                        acc.length = 0
+                    }
+                    continue;
+            }
         }
-    } else type = "ul"
-    return type
-}
 
-function createList(el) {
-    type = getListType(tempList)
-    if (type === "ul" || type === "ol") {
-        let listItems = ""
-        tempList.forEach(item => {
-            listItems = listItems + `<li>${item.substring(1).trim()}</li>`
-        });
-        tempList = []
-        listItems = `<${type}>${listItems}</${type}>\n`
-        return listItems
-    } else {
-        let listItems = ""
-        tempList.forEach(item => {
-            item = item.split(":")
-            const term = item[0].substring(1).trim()
-            const definition = item[1].trim()
-            listItems = listItems + `<dt>${term}</dt><dd>${definition}</dd>`
-        });
-        tempList = []
-        listItems = `<${type}>${listItems}</${type}>\n`
-        return listItems
+        
+        //If acc is not empty 
+        //And we're not processing anything special anymore
+        //Then push the acc content inside outBuffer
+        if (acc.length && !isProcessing(status)) {
+            outBuffer.push(acc.join('').trim())
+        }
+
+        //If we are processing something
+        //Then push it into acc
+        //And don't send it yet to outbuffer 
+        assert(isProcessing(status) === true)
+
+        if (status.space) {
+            status.space = false
+        } else {
+            if (titleAcc.length) {
+                acc.push(`<h${titleAcc.length}>${c}`)
+                titleCount = titleAcc.length
+                titleAcc.length = []
+            } else if (status.blockquote) {
+                acc.push(c)
+            } else {
+                acc.push(c)
+            }
+        }
     }
-}
 
-function endList(el) {
-    if (tempList.length === 0) {
-        return createParagraph(el)
-    } else {
-        return createList(el) + endList(el)
-    }
-}
 
-function createParagraph(el) {
-    return `<p>${el}</p>`
-}
-
-function populateList(firstChar, el) {
-    tempList.push(el)
-    currentList = firstChar
-}
-
-function createTitle(el) {
-    const count = (el.match(/#/g)).length;
-    return `<h${count}>${el.substring(1 + count)}</h${count}>`
-}
-
-function createQuote(el) {
-    return `<blockquote>${el.substring(2)}</blockquote>`
+    //Retunr completed text
+    return outBuffer.join('');
 }
 
 function createImages(el) {
@@ -149,8 +314,8 @@ function createImages(el) {
     el.forEach(e => {
         if (e === imgElem) {
             e = e.split(",")
-            let alt = e.length > 1 ? `alt="${e[1].trim()}"` : ""
-            let img = `<img src="${e[0]}" ${alt}></img>`
+            let alt = e.length > 1 ? ` alt="${e[1].trim()}"` : ""
+            let img = `<img src="${e[0]}"${alt}></img>`
 
             if (e.length > 2) {
                 let caption = `<figcaption>${e[2].trim()}</figcaption>`
@@ -175,59 +340,8 @@ function createLink(el) {
     el.forEach(e => {
         if (e === linkElem) {
             e = e.split(",")
-            const aria = e.length > 2 ? `aria-label="${e[2].trim()}"` : ""
-            e = `<a href="${e[0]}" ${aria}>${e[1].trim()}</a>`
-        }
-        elem = elem + e
-    });
-    return elem
-}
-
-function createBold(el) {
-    el = el.split(/(\*)/)
-    let opening = true
-    let elem = "";
-    el.forEach(e => {
-        if (e === "*" && opening === true) {
-            e = "<strong>"
-            opening = false
-        } else if (e === "*" && opening === false) {
-            e = "</strong>"
-            opening = true
-        }
-        elem = elem + e
-    });
-    return elem
-}
-
-function createItalic(el) {
-    el = el.split(/(_)/)
-    let opening = true
-    let elem = "";
-    el.forEach(e => {
-        if (e === "_" && opening === true) {
-            e = "<em>"
-            opening = false
-        } else if (e === "_" && opening === false) {
-            e = "</em>"
-            opening = true
-        }
-        elem = elem + e
-    });
-    return elem
-}
-
-function createCode(el) {
-    el = el.split(/(`)/)
-    let opening = true
-    let elem = "";
-    el.forEach(e => {
-        if (e === "`" && opening === true) {
-            e = "<code>"
-            opening = false
-        } else if (e === "`" && opening === false) {
-            e = "</code>"
-            opening = true
+            const aria = e.length > 2 ? ` aria-label="${e[2].trim()}"` : ""
+            e = `<a href="${e[0]}"${aria}>${e[1].trim()}</a>`
         }
         elem = elem + e
     });
@@ -235,8 +349,44 @@ function createCode(el) {
 }
 
 
+function createList(tempList, type) {
 
-//DEMO STUFF
+    let listType = undefined
+    switch (type) {
+        case "-":
+            listType = "ul"
+            break;
+        case "+":
+            listType = "ol"
+            break;
+         case "?":
+            listType = "dl"
+            break;
+    }
+
+    if (listType === "ul" || listType === "ol") {
+        let listItems = ""
+        tempList.forEach(item => {
+            listItems = listItems + `<li>${item.substring(1).trim()}</li>`
+        });
+        tempList = []
+        listItems = `<${listType}>${listItems}</${listType}>\n`
+        return listItems
+    } else {
+        let listItems = ""
+        tempList.forEach(item => {
+            item = item.split(":")
+            const term = item[0].substring(1).trim()
+            const definition = item[1].trim()
+            listItems = listItems + `<dt>${term}</dt><dd>${definition}</dd>`
+        });
+        tempList = []
+        listItems = `<${listType}>${listItems}</${listType}>\n`
+        return listItems
+    }
+}
+
+// //DEMO STUFF
 const formated = document.querySelector('.normal');
 const htmldemo = document.querySelector('.html');
 let demo = document.querySelector('textarea');
