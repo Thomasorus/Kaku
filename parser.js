@@ -387,8 +387,7 @@ function createList(tempList, type) {
 }
 
 // //DEMO STUFF
-const formated = document.querySelector('.normal');
-const htmldemo = document.querySelector('.html');
+const formated = document.querySelector('article');
 let demo = document.querySelector('textarea');
 
 document.addEventListener('keyup', triggerDemo)
@@ -396,9 +395,7 @@ document.addEventListener('keyup', triggerDemo)
 function triggerDemo() {
     let demotext = parser(demo.value)
     formated.innerHTML = ""
-    htmldemo.textContent = ""
     formated.innerHTML = demotext;
-    htmldemo.textContent = demotext;
 }
 
 triggerDemo()
