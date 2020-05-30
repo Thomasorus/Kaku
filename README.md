@@ -1,7 +1,7 @@
 # Kaku 書く
 
-Kaku (write) is my own markup language.
-It is heavily inspired by Markdown with a few modification for link, image and list handling.
+Kaku (write) is my own markup language. It is heavily inspired by Markdown with a few modification for links, images and lists handling.
+
 This repositoty contains a parser for Kaku.
 
 ## Project state
