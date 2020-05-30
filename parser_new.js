@@ -4,11 +4,15 @@ const symbol = [
     "_",
     "`",
     ">",
-    "#"
+    "#",
+    "[",
+    "]",
+    "{",
+    "}"
 ]
 
 function isProcessing(status) {
-    return status.bold || status.italic || status.code || status.blockquote || status.title
+    return status.bold || status.italic || status.code || status.blockquote || status.title || status.image || status.link
 }
 
 function assert(condition) {
@@ -38,7 +42,9 @@ function parser(text) {
         italic: false,
         code: false,
         citation: false,
-        space: false
+        space: false,
+        image: false,
+        link: false
     };
 
 
@@ -97,9 +103,12 @@ function parser(text) {
                     //if status is true
                     //start it
                     //Push starting html into acc
-                    else {
+                    else if(status.paragraph) {
+
                         acc.push('<strong>')
                         status.bold = true
+                    } else {
+                        acc.push(c)
                     }
                     if((i + 1) == (formated.length) && status.paragraph) {
                         acc.push('</p>')
@@ -110,12 +119,15 @@ function parser(text) {
                     }
                    continue
                 case "_":
+                       
                     if(status.italic){
                         status.italic = false
                         acc.push('</em>')
-                    } else {
+                    } else if(status.paragraph) {
                         acc.push('<em>')
                         status.italic = true
+                    } else {
+                        acc.push(c)
                     }
                     if((i + 1) == (formated.length) && status.paragraph) {
                         acc.push('</p>')
@@ -124,14 +136,18 @@ function parser(text) {
                             outBuffer.push(acc.join('').trim())
                         }
                     }
+                        
+                    
                     continue;
                 case "`":
                     if(status.code){
                         status.code = false
                         acc.push('</code>')
-                    } else {
+                    } else if(status.paragraph) {
                         acc.push('<code>')
                         status.code = true
+                    } else {
+                        acc.push(c)
                     }
                     if((i + 1) == (formated.length) && status.paragraph) {
                         acc.push('</p>')
@@ -139,7 +155,7 @@ function parser(text) {
                         if(acc.length && !isProcessing(status)){
                             outBuffer.push(acc.join('').trim())
                         }
-                    }
+                    } 
                     continue;
                 case ">":
                     if(!status.blockquote) {
@@ -149,11 +165,42 @@ function parser(text) {
                     }
                     continue;
                 case "#":
-                        titleAcc.push('#')
-                        status.title = true
-                        status.space = true
-
+                    titleAcc.push('#')
+                    status.title = true
+                    status.space = true
                     continue;
+                case "[":
+                    acc.push(c)
+                    status.image = true
+                    continue
+                case "]":
+                    acc.push(c)
+                    const img = createImages(acc.join(''))
+                    acc.splice(0, acc.length)
+                    acc.push(img)
+                    status.image = false
+                    if((i + 1) == (formated.length)) {
+                        if(acc.length && !isProcessing(status)){
+                            outBuffer.push(acc.join('').trim())
+                        }
+                    }
+                    continue
+                case "{":
+                    acc.push(c)
+                    status.link = true
+                    continue
+                case "}":
+                    acc.push(c)
+                    const link = createLink(acc.join(''))
+                    acc.splice(0, acc.length)
+                    acc.push(link)
+                    status.link = false
+                    if((i + 1) == (formated.length)) {
+                        if(acc.length && !isProcessing(status)){
+                            outBuffer.push(acc.join('').trim())
+                        }
+                    }
+                    continue
                 //Needs more work...
                 case "\n":
                         if(status.paragraph) {
@@ -196,24 +243,21 @@ function parser(text) {
 
 
         //Accumulating titles #
-        if(titleAcc.length) {
-            if(!status.space) {
+        if(status.space) {
+            status.space = false
+        }
+        else {
+            if(titleAcc.length) {
                 acc.push(`<h${titleAcc.length}>${c}`)
                 titleCount = titleAcc.length
                 titleAcc.length = []    
-            } else {
-                status.space = false
-            }
-        } 
-        else if(status.blockquote) {
-            if(!status.space) {
+            } 
+            else if(status.blockquote) {
                 acc.push(c) 
-            }  else {
-                status.space = false
-            }
-        } 
-        else {
-            acc.push(c)
+            } 
+            else {
+                acc.push(c)
+            } 
         }
     }
 
@@ -221,5 +265,50 @@ function parser(text) {
     //Retunr completed text
     return outBuffer.join('');
 }
+
+function createImages(el) {
+    let imgElem = el.substring(
+        el.lastIndexOf("[") + 1,
+        el.lastIndexOf("]")
+    );
+    el = el.split(/\[|\]/)
+    let elem = "";
+    el.forEach(e => {
+        if (e === imgElem) {
+            e = e.split(",")
+            let alt = e.length > 1 ? ` alt="${e[1].trim()}"` : ""
+            let img = `<img src="${e[0]}"${alt}></img>`
+
+            if (e.length > 2) {
+                let caption = `<figcaption>${e[2].trim()}</figcaption>`
+                e = `<figure>${img}${caption}</figure>`
+            } else {
+                e = img
+            }
+        }
+        elem = elem + e
+    });
+    return elem
+}
+
+function createLink(el) {
+    let linkElem = el.substring(
+        el.lastIndexOf("{") + 1,
+        el.lastIndexOf("}")
+    );
+    el = el.split(/{|}/)
+
+    let elem = "";
+    el.forEach(e => {
+        if (e === linkElem) {
+            e = e.split(",")
+            const aria = e.length > 2 ? ` aria-label="${e[2].trim()}"` : ""
+            e = `<a href="${e[0]}"${aria}>${e[1].trim()}</a>`
+        }
+        elem = elem + e
+    });
+    return elem
+}
+
 
 export {parser}
