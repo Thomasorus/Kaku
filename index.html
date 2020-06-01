@@ -51,39 +51,20 @@
 </head>
 <body style="display:flex; flex-flow: row wrap;">
     <main>
-        <textarea name="demo1" id="demo" cols="50" rows="20">
-# Kaku 書く
+        <textarea name="demo1" id="demo" cols="50" rows="20"># Kaku 書く
 
-Kaku (_write_) is my own markup language. It is heavily inspired by Markdown with a few modification for links, images and lists. 
-This repositoty contains a parser for Kaku.
+Is *working* a lot _better_ than `before`
 
-## Project state
+## A link
 
-This is an experiment more than a full fledged project and thus, several bugs are still present. The code is non-optimized and unfinished. Feel free to fork or do a pull request.
+{link url, text of link, alt text}
 
-{https://github.com/Thomasorus/Kaku, See the repo for more information.}
+### An image
 
-## Examples
-
-- A 
-- Bullet
-- List
-
-+ A 
-+ Numbered
-+ List
-
-? A : descriptive
-? B : list
-
-Normal text with *bold* and _italic_ and `code`.
-
-> A simple quote
-
-
-A simple {https://github.com/Thomasorus/Kaku, link}.
-
-[https://i.imgur.com/oJXNeQm.jpg, The alt of the image, The caption of the image]</textarea>
+[https://i.imgur.com/oJXNeQm.jpg, alttext]
+            
+            
+</textarea>
     <article></article>
     <script src="parser.js"></script>
 </body>
