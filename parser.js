@@ -1,316 +1,75 @@
 const symbol = [
-    "\n",
-    "*",
-    "_",
-    "`",
-    ">",
-    "#",
-    "[",
-    "]",
-    "{",
-    "}",
-    "-",
-    "?",
-    "+"
+    // /^((?:[^\n]|\n(?! *\n))+)(?:\n *)+\n/g,
+    /\*((?:\\[\s\S]|[^\\])+?)\*(?!\*)/g,
+    /\_((?:\\[\s\S]|[^\\])+?)\_(?!\_)/g,
+    /(\`+)([\s\S]*?[^`])\1(?!`)/g,
+    // /( *>[^\n]+(\n[^\n]+)*\n*)+\n{2,}/g,
+    / *(#{1,6})([^\n]+?)#* *(?:\n *)+\n/g,
+    /\[((?:\\[\s\S]|[^\\])+?)\,((?:\\[\s\S]|[^\\])+?)\]/g,
+    /\{((?:\\[\s\S]|[^\\])+?)\,((?:\\[\s\S]|[^\\])+?)\}/g,
 ]
-
-function isProcessing(status) {
-    return status.bold || status.italic || status.code || status.blockquote || status.title || status.image || status.link || status.list
-}
-
-function assert(condition) {
-    if (condition) {
-        return
-    } else {
-        throw "Assert error";
-    }
-}
 
 
 function parser(text) {
-
-    //outbuffer is the final rendered text
-    const outBuffer = [];
-
-    //acc contains text being processed
-    const acc = [];
-
-    let titleAcc = [];
-    let titleCount = "";
-
-    const listAcc = []
-    let listType = undefined
-
-
-    //status define what type of text is being processed
-    const status = {
-        paragraph: false,
-        bold: false,
-        italic: false,
-        code: false,
-        citation: false,
-        space: false,
-        image: false,
-        link: false,
-        list: false,
-        linebreak: false
-    };
-
-
-    //Replacing line break chars
-    const formated = text.replace(/\r\n/g, "\n").replace(/\n\s*\n/g, '\n');
-
-
-    for (var i = 0; i < formated.length; ++i) {
-        const c = formated[i]
-
-        //If acc has value and no process is running
-        //Then push acc content into outBuffer
-        //Reset acc content
-        if(listAcc.length <= 0) {
-
-            if (acc.length && !isProcessing(status)) {
-                outBuffer.push(acc.join(''))
-                acc.length = 0    
-            }
-        }
-
-        //Check if character contains one of the symbols
-        const s = symbol.find(x => x == c)
-
-        //If not a syntax character
-        //And we're not processing anything
-        //Then push the symbol inside outbuffer
-        // PLUS checks if new line or end of document
-        if (!s && !isProcessing(status)) {
-            status.linebreak = false
-            if(listAcc.length) {
-                const lst = createList(listAcc, listType);
-                outBuffer.push(lst)
-                listAcc.length = 0
-                listType = undefined
-            }
-            if ((i + 1) == (formated.length) && status.paragraph) {
-                const p = `${c}</p>`;
-                status.paragraph = false;
-                outBuffer.push(p)
-                continue;
-            }
-            if (!status.paragraph && c !== " ") {
-                status.paragraph = true;
-                const p = `<p>${c}`;
-                outBuffer.push(p)
-                continue;
-            }
-
-            outBuffer.push(c)
-            continue;
-        }
-
-        //If a syntax character
-        if (!!s) {
-            //Then which one?
-            switch (s) {
-                // Symbols with similar starter and ender
-                case "*":
-                    //If status is true
-                    //End it
-                    //Add closing html into acc
-                    if (status.bold) {
-                        status.bold = false
-                        acc.push('</strong>')
-                    }
-                    //if status is true
-                    //start it
-                    //Push starting html into acc
-                    else {
-                        acc.push('<strong>')
-                        status.bold = true
-                    }
-                    if ((i + 1) == (formated.length) && status.paragraph) {
-                        acc.push('</p>')
-                        status.paragraph = false;
-                        if (acc.length && !isProcessing(status)) {
-                            outBuffer.push(acc.join('').trim())
-                        }
-                    }
-                    continue
-                case "_":
-                    if (status.link || status.image) {
-                        acc.push(c)
+    for (let i = 0; i < symbol.length; i++) {
+        const s = symbol[i];
+        while (text.match(s)) {
+            const match = text.match(s);
+            const type = match[0].charAt(0)
+            for (let t = 0; t < match.length; t++) {
+                const e = match[t];
+                switch (type) {
+                    case "#":
+                        text = createTitle(e, text)
                         continue
-                    }
-                    if (status.italic) {
-                        status.italic = false
-                        acc.push('</em>')
-                    } 
-                    else {
-                        acc.push('<em>')
-                        status.italic = true
-                    }
-                    if ((i + 1) == (formated.length) && status.paragraph) {
-                        acc.push('</p>')
-                        status.paragraph = false;
-                        if (acc.length && !isProcessing(status)) {
-                            outBuffer.push(acc.join('').trim())
-                        }
-                    }
-                    continue;
-                case "`":
-                    if (status.code) {
-                        status.code = false
-                        acc.push('</code>')
-                    } else {
-                        acc.push('<code>')
-                        status.code = true
-                    }
-                    if ((i + 1) == (formated.length) && status.paragraph) {
-                        acc.push('</p>')
-                        status.paragraph = false;
-                        if (acc.length && !isProcessing(status)) {
-                            outBuffer.push(acc.join('').trim())
-                        }
-                    }
-                    continue;
-                case ">":
-                    if (!status.blockquote) {
-                        acc.push('<blockquote>')
-                        status.blockquote = true
-                        status.space = true
-                    }
-                    continue;
-                case "#":
-                    titleAcc.push('#')
-                    status.title = true
-                    status.space = true
-                    continue;
-                case "[":
-                    acc.push(c)
-                    status.image = true
-                    continue
-                case "]":
-                    acc.push(c)
-                    const img = createImages(acc.join(''))
-                    acc.splice(0, acc.length)
-                    acc.push(img)
-                    status.image = false
-                    if ((i + 1) == (formated.length)) {
-                        if (acc.length && !isProcessing(status)) {
-                            outBuffer.push(acc.join('').trim())
-                        }
-                    }
-                    continue
-                case "{":
-                    acc.push(c)
-                    status.link = true
-                    continue
-                case "}":
-                    acc.push(c)
-                    const link = createLink(acc.join(''))
-                    acc.splice(0, acc.length)
-                    acc.push(link)
-                    status.link = false
-                    if ((i + 1) == (formated.length)) {
-                        if (acc.length && !isProcessing(status)) {
-                            outBuffer.push(acc.join('').trim())
-                        }
-                    }
-                    continue
-                case "-":
-                case "?":
-                case "+":
-                    if (status.linebreak) {
-                        if(status.list === false && listType !== c) {
-                            const lst = createList(listAcc, listType);
-                            outBuffer.push(lst)
-                            listAcc.length = 0
-                            listType = undefined
-                        } 
-                        status.list = true
-                        listType = c
-                        acc.push(c)
-
-                        
-                    } else {
-                        outBuffer.push(c)
-                    }
-
-                    continue
-                case "\n":
-                    status.linebreak = true
-
-                    if (status.paragraph) {
-                        acc.push('</p>')
-                        status.paragraph = false
-                    }
-                    if (status.blockquote) {
-                        acc.push('</blockquote>')
-                        status.blockquote = false
-                        if ((i + 1) == (formated.length)) {
-                            if (acc.length && !isProcessing(status)) {
-                                outBuffer.push(acc.join('').trim())
-                            }
-                        }
-                    }
-                    if (status.title) {
-                        acc.push(`</h${titleCount}>`)
-                        status.title = false
-                        if ((i + 1) == (formated.length)) {
-                            if (acc.length && !isProcessing(status)) {
-                                outBuffer.push(acc.join('').trim())
-                            }
-                        }
-                    }
-                    if (status.list) {
-                        acc.push(c)
-                        listAcc.push(acc.join('').trim())
-                        status.list = false
-                        acc.length = 0
-                    }
-                    continue;
+                    case "*":
+                        text = createTypography(e, text, type, 'strong')
+                        continue
+                    case "_":
+                        text = createTypography(e, text, type, 'em')
+                        continue
+                    case "`":
+                        text = createTypography(e, text, type, "code")
+                        continue
+                    // case ">":
+                    //     text = createTypography(e, text, type, "blockquote")
+                    //     continue
+                    case "[":
+                        text = createImages(e, text)
+                        continue
+                    case "{":
+                        text = createLink(e, text)
+                        continue
+                }
+                return text
             }
-        }
-
-        
-        //If acc is not empty 
-        //And we're not processing anything special anymore
-        //Then push the acc content inside outBuffer
-        if (acc.length && !isProcessing(status)) {
-            outBuffer.push(acc.join('').trim())
-        }
-
-        //If we are processing something
-        //Then push it into acc
-        //And don't send it yet to outbuffer 
-        assert(isProcessing(status) === true)
-
-        if (status.space) {
-            status.space = false
-        } else {
-            if (titleAcc.length) {
-                acc.push(`<h${titleAcc.length}>${c}`)
-                titleCount = titleAcc.length
-                titleAcc.length = []
-            } else if (status.blockquote) {
-                acc.push(c)
-            } else {
-                acc.push(c)
-            }
+            
         }
     }
+    return text
 
-
-    //Retunr completed text
-    return outBuffer.join('');
 }
 
-function createImages(el) {
+function createTitle(el, text) {
+    const count = (el.match(/#/g)).length;
+    const html = `<h${count}>${el.substring(1 + count)}</h${count}>`
+    return text.replace(el, html)
+}
+
+function createTypography(el, text, type, tag) {
+    let regex = new RegExp(`\\${type}`, 'g');
+    const html = `<${tag}>${el.replace(regex, "")}</${tag}>`;
+    return text.replace(el, html)
+}
+
+function createImages(img, text) {
+    let el = img
     let imgElem = el.substring(
         el.lastIndexOf("[") + 1,
         el.lastIndexOf("]")
     );
     el = el.split(/\[|\]/)
-    let elem = "";
+    let html = "";
     el.forEach(e => {
         if (e === imgElem) {
             e = e.split(",")
@@ -324,67 +83,31 @@ function createImages(el) {
                 e = img
             }
         }
-        elem = elem + e
+        html = html + e
     });
-    return elem
+    return text.replace(img, html)
 }
 
-function createLink(el) {
+function createLink(link, text) {
+    let el = link
     let linkElem = el.substring(
         el.lastIndexOf("{") + 1,
         el.lastIndexOf("}")
     );
     el = el.split(/{|}/)
 
-    let elem = "";
+    let html = "";
     el.forEach(e => {
         if (e === linkElem) {
             e = e.split(",")
             const aria = e.length > 2 ? ` aria-label="${e[2].trim()}"` : ""
             e = `<a href="${e[0]}"${aria}>${e[1].trim()}</a>`
         }
-        elem = elem + e
+        html = html + e
     });
-    return elem
+    return text.replace(link, html)
 }
 
-
-function createList(tempList, type) {
-
-    let listType = undefined
-    switch (type) {
-        case "-":
-            listType = "ul"
-            break;
-        case "+":
-            listType = "ol"
-            break;
-         case "?":
-            listType = "dl"
-            break;
-    }
-
-    if (listType === "ul" || listType === "ol") {
-        let listItems = ""
-        tempList.forEach(item => {
-            listItems = listItems + `<li>${item.substring(1).trim()}</li>`
-        });
-        tempList = []
-        listItems = `<${listType}>${listItems}</${listType}>\n`
-        return listItems
-    } else {
-        let listItems = ""
-        tempList.forEach(item => {
-            item = item.split(":")
-            const term = item[0].substring(1).trim()
-            const definition = item[1].trim()
-            listItems = listItems + `<dt>${term}</dt><dd>${definition}</dd>`
-        });
-        tempList = []
-        listItems = `<${listType}>${listItems}</${listType}>\n`
-        return listItems
-    }
-}
 
 // //DEMO STUFF
 const formated = document.querySelector('article');
