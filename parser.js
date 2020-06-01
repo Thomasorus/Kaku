@@ -10,7 +10,25 @@ const symbol = [
 ]
 
 
-function parser(text) {
+function parser(rawtText) {
+    rawtText = rawtText.replace(/\r\n/g, "\n")
+    rawtText = rawtText.split(/\n/g).filter(Boolean)
+
+    let text = []
+    const regex = /^\#|^\{|^\[|^\*|^\_|^\`|^\>|^\-|^\+|^\?/g;
+
+    for (let i = 0; i < rawtText.length; i++) {
+        let el = rawtText[i];
+        const firstChar = el.charAt(0)
+        if(regex.test(firstChar)) {
+            text.push(el)
+        } else {
+            text.push(`<p>${el}</p>`)
+        }
+    }
+    
+    text = text.join('\n\n')
+
     for (let i = 0; i < symbol.length; i++) {
         const s = symbol[i];
         while (text.match(s)) {
@@ -47,7 +65,6 @@ function parser(text) {
         }
     }
     return text
-
 }
 
 function createTitle(el, text) {
