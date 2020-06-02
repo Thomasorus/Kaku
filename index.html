@@ -44,8 +44,12 @@
         blockquote {
             background: #111;
             padding:20px;
-            display: inline-block;
+            display: block;
             font-style: italic;
+            display: inline-block;
+        }
+        figure {
+            margin:0;
         }
     </style>
 </head>
@@ -53,17 +57,14 @@
     <main>
         <textarea name="demo1" id="demo" cols="50" rows="20"># Kaku 書く
 
-Is *working* a lot _better_ than `before`
+It can do *bold* and _italic_ and `code`!
 
-## A link
+Of course you can use basic text and inline links. For example {https://github.com/Thomasorus/Kaku | check the this link to the repo!| Link to Kaku's repo}
 
-{link url, text of link, alt text}
+[https://i.imgur.com/oJXNeQm.jpg | Sailor moon and Bruce Lee | It can do images with figcaptions!]
 
-### An image
+~ And even quotes! | Author | Source of quote | url_of_quote ~
 
-[https://i.imgur.com/oJXNeQm.jpg, alttext]
-            
-            
 </textarea>
     <article></article>
     <script src="parser.js"></script>
