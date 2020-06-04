@@ -1,11 +1,11 @@
 const symbol = [
     /\*((?:\\[\s\S]|[^\\])+?)\*(?!\*)/g,
-    /\_((?:\\[\s\S]|[^\\])+?)\_(?!\_)/g,
+    /\b\_((?:\\[\s\S]|[^\\])+?)\_(?!\_\b)/g,
     /(\`+)([\s\S]*?[^`])\1(?!`)/g,
     / *(#{1,6})([^\n]+?)#* *(?:\n *)+\n/g,
-    /\~((?:\\[\s\S]|[^\\])+?)\|((?:\\[\s\S]|[^\\])+?)\~/g,
-    /\[((?:\\[\s\S]|[^\\])+?)\|((?:\\[\s\S]|[^\\])+?)\]/g,
-    /\{((?:\\[\s\S]|[^\\])+?)\|((?:\\[\s\S]|[^\\])+?)\}/g,
+    /\~((?:\\[\s\S]|[^\\])+?)\,((?:\\[\s\S]|[^\\])+?)\~/g,
+    /\[((?:\\[\s\S]|[^\\])+?)\,((?:\\[\s\S]|[^\\])+?)\]/g,
+    /\{((?:\\[\s\S]|[^\\])+?)\,((?:\\[\s\S]|[^\\])+?)\}/g,
 ]
 
 
@@ -80,8 +80,9 @@ function createTypography(el, text, type, tag) {
 function createQuote(quote, text) {
     let el = quote
     el = el.replace(/\~/g, '')
-    el = el.split('|')
-    const citation = el[0].trim();
+    const citation = extractText(el)
+    el = el.replace(citation, "")
+    el = el.split(',')
     const url = `cite="${el[3].trim()}"`
     const source = `, <cite>${el[2]}</cite>`
     const author = `<footer>—${el[1].trim()}${source}</footer>`
@@ -94,31 +95,44 @@ function createQuote(quote, text) {
     return text.replace(quote, html)
 }
 
+function extractText(text) {
+    const regexuuu = /\"((?:\\[\s\S]|[^\\])+?)\"(?!\*)/g
+    const match = text.match(regexuuu)[0].replace(/\"/g, "").trim()
+    return match
+}
+
 function createImages(img, text) {
     let el = img
     el = el.replace("[", "").replace("]", "")
-    const imgArr = el.split("|")
+    
+    let caption = `<figcaption>${extractText(el)}</figcaption>`
+    el = el.replace(caption, "")
+
+    const imgArr = el.split(",")
 
     let alt = imgArr.length > 1 ? ` alt="${imgArr[1].trim()}"` : ""
     let imgHtml = `<img src="${imgArr[0].trim()}"${alt}></img>`
 
     if (imgArr.length > 2) {
-        let caption = `<figcaption>${imgArr[2].trim()}</figcaption>`
+        
         imgHtml = `<figure>${imgHtml}${caption}</figure>`
     } 
 
     let html = imgHtml;
-
+    console.log(html)
     return text.replace(img, html)
 }
 
 function createLink(link, text) {
     let el = link
     el = el.replace("{", "").replace("}", "")
-    linkElem = el.split("|")
+    const textLink = extractText(el)
+    el = el.replace(textLink, "")
+
+    linkElem = el.split(",")
     const aria = linkElem.length > 2 ? ` aria-label="${linkElem[2].trim()}"` : ""
     let html = `
-      <a href="${linkElem[0]}"${aria}>${linkElem[1].trim()}</a>
+      <a href="${linkElem[0]}"${aria}>${textLink}</a>
     `;
     return text.replace(link, html)
 }
