@@ -52,15 +52,20 @@
         figure {
             margin:0;
         }
+        figcaption {
+            font-style: italic;
+        }
     </style>
 </head>
 <body style="display:flex; flex-flow: row wrap;">
     <main>
         <textarea name="demo1" id="demo" cols="50" rows="20"># Kaku 書く
 
-Wel come to Kaku's demo! {https://github.com/Thomasorus/Kaku, "Visit the repo for the full documentation.", Link to Kaku's repo}
+Welcome to Kaku's demo! Kaku is my own markup language. It's inspired by Markdown with a few modification for quotes, links, images and lists handling. It was created to fit my needs.
 
-~ "Kaku uses some syntax from Markdown for basic text transformation. However it uses an array like declaration with special characters for things like quotes, links and images.", Thomasors, Kaku's Repo, https://github.com/Thomasorus/Kaku~
+{https://github.com/Thomasorus/Kaku, "Visit the repo for the full documentation.", Link to Kaku's repo}
+
+~ "Kaku is mostly used for my static website build.", Thomasors, Kaku's Repo, https://github.com/Thomasorus/Kaku~
 
 Kaku can do *bold*, _italic_ and `inline code`!
 
@@ -77,7 +82,7 @@ Of course lists are possible:
 
 As for images you can generate classic image tags or figure tags:
 
-[https://i.imgur.com/oJXNeQm.jpg, Sailor moon and Bruce Lee, "It can do images with figcaptions!"]
+[https://i.imgur.com/oJXNeQm.jpg, Sailor moon and Bruce Lee, "I am the figcaption!"]
 
 It's also possible to add videos as fake gifs or as real videos:
 
@@ -89,9 +94,27 @@ The same syntax is used for mp3 audio:
 
 |https://archive.org/serve/FurEliseLudwigVanBeethoven/fur%20elise%20%28Ludwig%20van%20Beethoven%29.mp3|
 
-            
+                        
+                    
 </textarea>
     <article></article>
     <script src="parser.js"></script>
+
+    <script>
+        
+// //DEMO STUFF
+const formated = document.querySelector('article');
+let demo = document.querySelector('textarea');
+
+document.addEventListener('keyup', triggerDemo)
+
+function triggerDemo() {
+    let demotext = parser(demo.value)
+    formated.innerHTML = ""
+    formated.innerHTML = demotext;
+}
+
+triggerDemo()
+    </script>
 </body>
 </html>

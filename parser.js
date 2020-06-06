@@ -13,8 +13,6 @@ const symbol = [
     /\? ((?:\\[\s\S]|[^\\])+?)([^\n]*)/g,
 ]
 
-
-
 function parser(rawtText) {
     rawtText = rawtText.replace(/\r\n/g, "\n")
     rawtText = rawtText.split(/\n/g)
@@ -26,25 +24,25 @@ function parser(rawtText) {
     for (let i = 0; i < rawtText.length; i++) {
         let el = rawtText[i];
         const firstChar = el.charAt(0)
-        if(firstChar.match(regex)) {
-            if(firstChar.match(regexList)) {
+        if (firstChar.match(regex)) {
+            if (firstChar.match(regexList)) {
                 acc.push(el)
-                if(i === rawtText.length - 1) {
+                if (i === rawtText.length - 1) {
                     text.push(acc.join(''))
                 }
             } else {
-                if(acc.length) {
+                if (acc.length) {
                     text.push(acc.join('') + "\n\n")
                     acc.length = 0
                 }
                 text.push(el + "\n\n")
             }
         } else {
-            if(acc.length) {
+            if (acc.length) {
                 text.push(acc.join('') + "\n\n")
                 acc.length = 0
             }
-            if(el.length > 0){
+            if (el.length > 0) {
                 text.push(`<p>${el}</p>`)
 
             }
@@ -94,7 +92,7 @@ function parser(rawtText) {
                 }
                 return text
             }
-            
+
         }
     }
     return text
@@ -108,8 +106,8 @@ function createMultimedia(multi, text) {
     let param = el[1] ? el[1].trim() : ''
     let mediaType = url.slice(-1)
     console.log(param)
-    if(param) {
-        if(param === "g") {
+    if (param) {
+        if (param === "g") {
             param = `autoplay="true" playsinline="true" loop="true" mute="true" preload="metadata"`;
         } else {
             param = `controls preload="metadata"`
@@ -117,13 +115,13 @@ function createMultimedia(multi, text) {
     } else {
         param = `controls preload="metadata"`
     }
-   
+
 
     html = ""
     console.log(mediaType)
     switch (mediaType) {
         case "4":
-            html =`<video ${param} src="${url}" type="video/mp4"></video>`
+            html = `<video ${param} src="${url}" type="video/mp4"></video>`
             break;
         case "3":
             html = `<audio ${param} src="${url}" type="audio/mpeg"></audio>`
@@ -143,7 +141,7 @@ function createList(el, text, type) {
         case "+":
             listType = "ol"
             break;
-         case "?":
+        case "?":
             listType = "dl"
             break;
     }
@@ -208,7 +206,7 @@ function extractText(text) {
 function createImages(img, text) {
     let el = img
     el = el.replace("[", "").replace("]", "")
-    
+
     let caption = `<figcaption>${extractText(el)}</figcaption>`
     el = el.replace(caption, "")
 
@@ -218,9 +216,9 @@ function createImages(img, text) {
     let imgHtml = `<img src="${imgArr[0].trim()}"${alt}></img>`
 
     if (imgArr.length > 2) {
-        
+
         imgHtml = `<figure>${imgHtml}${caption}</figure>`
-    } 
+    }
 
     let html = imgHtml;
     return text.replace(img, html)
@@ -239,18 +237,3 @@ function createLink(link, text) {
     `;
     return text.replace(link, html)
 }
-
-
-// //DEMO STUFF
-const formated = document.querySelector('article');
-let demo = document.querySelector('textarea');
-
-document.addEventListener('keyup', triggerDemo)
-
-function triggerDemo() {
-    let demotext = parser(demo.value)
-    formated.innerHTML = ""
-    formated.innerHTML = demotext;
-}
-
-triggerDemo()
