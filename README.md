@@ -10,49 +10,54 @@ Kaku uses some syntax from Markdown for basic text transformation. However it us
 
 ### Typography
 
-#### Title 1: 
+#### Title 1
 
 Example : `# Title`
 
 Will return:
+
 ```Html
 <h1>Title</h1>
 ```
 
-#### Title 2: 
+#### Title 2
 
 Example : `## Title`
 
 Will return:
+
 ```Html
 <h2>Title</h2>
 ```
 
 Same for titles 3 to 6...
 
-#### Bold : 
+#### Bold
 
 Example : `*bold*`
 
 Will return:
+
 ```Html
 <strong>bold</strong>
 ```
 
-#### Emphasis : 
+#### Emphasis
 
 Example : `_emphasis_`
 
 Will return:
+
 ```Html
 <em>emphasis</em>
 ```
 
-#### Code : 
+#### Code
 
 Example : `code`
 
 Will return:
+
 ```Html
 <code>code</code>
 ```
@@ -113,7 +118,7 @@ Will return;
 <img src="imgname" alt="altText">
 ```
 
-Image with caption : `[img_url, My alt text, "This is my, super figcaption text"]` 
+Image with caption : `[img_url, My alt text, "This is my, super figcaption text"]`
 
 Will return:
 
@@ -124,7 +129,7 @@ Will return:
 </figure>
  ```
 
-### Bullet list
+### Bullet lists
 
 ```html
 - AAA
@@ -142,7 +147,7 @@ Will return:
 </ul>
 ```
 
-### Ordered list
+### Ordered lists
 
 ```html
 + Number 1
@@ -160,7 +165,7 @@ Will return:
 </ol>
 ```
 
-### Descriptive list
+### Descriptive lists
 
 ```html
 ? Term 1 : definition 1
@@ -178,17 +183,42 @@ Will return:
 </dl>
 ```
 
-### Video
+### Videos and audios
 
-To be determined...
+Videos and audios are presented like an array and can take up to 2 arguments:
 
-### Audio
+1. The video name or url (in mp4 format for video, mp3 for audio)
+2. If a video you can add a `g` parameter to use the video as a gif
 
-To be determined...
+Classic video: `| videoUrl |`
+
+Will return:
+
+```Html
+<video controls="" preload="metadata" src="videoUrl" type="video/mp4"></video>
+```
+
+Video as gif: `| videoUrl, g |`
+
+Will return:
+
+```Html
+<video autoplay="true" playsinline="true" loop="true" mute="true" preload="metadata" src="videoUrl" type="video/mp4"></video>
+```
+
+Audio: `| audioUrl |`
+
+Will return;
+
+```Html
+<audio controls="" preload="metadata" src="audioUrl" type="audio/mpeg"></audio>
+```
+
+Note: all audio and video elements come with the `preload="metadata"` attribute to help slower connections.
 
 ## Run tests
 
-This projects come with tests, even if some of them are broken. To run them:
+This projects comes with tests, even if some of them are broken. To run them:
 
 - Install with `yarn`
 - Configure tests in `test.js`
