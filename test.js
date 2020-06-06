@@ -1,5 +1,5 @@
 const test = require('ava');
-const p = require("./module.js");
+const p = require("./src/module.js");
 
 // TITLES
 
