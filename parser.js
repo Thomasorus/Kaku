@@ -2,10 +2,12 @@ const symbol = [
     /\*((?:\\[\s\S]|[^\\])+?)\*(?!\*)/g,
     /\b\_((?:\\[\s\S]|[^\\])+?)\_(?!\_\b)/g,
     /(\`+)([\s\S]*?[^`])\1(?!`)/g,
+    / *(`{3})((?:\\[\s\S]|[^\\])+?) *(`{3})/g,
     / *(#{1,6})([^\n]+?)#* *(?:\n *)+\n/g,
     /\~((?:\\[\s\S]|[^\\])+?)\,((?:\\[\s\S]|[^\\])+?)\~/g,
     /\[((?:\\[\s\S]|[^\\])+?)\,((?:\\[\s\S]|[^\\])+?)\]/g,
-    /\{((?:\\[\s\S]|[^\\])+?)\,((?:\\[\s\S]|[^\\])+?)\}/g,
+    /\{((?:\\[\s\S]|[^\\])+?)\}/g,
+    /\|((?:\\[\s\S]|[^\\])+?)\|/g,
     /\- ((?:\\[\s\S]|[^\\])+?)([^\n]*)/g,
     /\+ ((?:\\[\s\S]|[^\\])+?)([^\n]*)/g,
     /\? ((?:\\[\s\S]|[^\\])+?)([^\n]*)/g,
@@ -17,7 +19,7 @@ function parser(rawtText) {
     rawtText = rawtText.replace(/\r\n/g, "\n")
     rawtText = rawtText.split(/\n/g)
     let text = []
-    const regex = /^\#|^\{|^\[|^\*|^\_|^\`|^\~|^\-|^\+|^\?/g;
+    const regex = /^\#|^\{|^\[|^\||^\*|^\_|^\`|^\~|^\-|^\+|^\?/g;
     const regexList = /^\-|^\+|^\?/g;
 
     let acc = []
@@ -85,7 +87,10 @@ function parser(rawtText) {
                     case "+":
                     case "?":
                         text = createList(e, text, type)
-                        continue;
+                        continue
+                    case "|":
+                        text = createMultimedia(e, text)
+                        continue
                 }
                 return text
             }
@@ -95,7 +100,38 @@ function parser(rawtText) {
     return text
 }
 
+function createMultimedia(multi, text) {
+    let el = multi
+    el = el.replace(/[|]/g, "")
+    el = el.split(",")
+    const url = el[0]
+    let param = el[1] ? el[1].trim() : ''
+    let mediaType = url.slice(-1)
+    console.log(param)
+    if(param) {
+        if(param === "g") {
+            param = `autoplay="true" playsinline="true" loop="true" mute="true" preload="metadata"`;
+        } else {
+            param = `controls preload="metadata"`
+        }
+    } else {
+        param = `controls preload="metadata"`
+    }
+   
 
+    html = ""
+    console.log(mediaType)
+    switch (mediaType) {
+        case "4":
+            html =`<video ${param} src="${url}" type="video/mp4"></video>`
+            break;
+        case "3":
+            html = `<audio ${param} src="${url}" type="audio/mpeg"></audio>`
+        default:
+            break;
+    }
+    return text.replace(multi, html)
+}
 
 function createList(el, text, type) {
     let tempList = el.split(type).filter(Boolean)
