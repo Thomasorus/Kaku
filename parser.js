@@ -5,7 +5,7 @@ const symbol = [
     / *(`{3})((?:\\[\s\S]|[^\\])+?) *(`{3})/g,
     / *(#{1,6})([^\n]+?)#* *(?:\n *)+\n/g,
     /\~((?:\\[\s\S]|[^\\])+?)\,((?:\\[\s\S]|[^\\])+?)\~/g,
-    /\[((?:\\[\s\S]|[^\\])+?)\,((?:\\[\s\S]|[^\\])+?)\]/g,
+    /\[((?:\\[\s\S]|[^\\])+?)\]/g,
     /\{((?:\\[\s\S]|[^\\])+?)\}/g,
     /\|((?:\\[\s\S]|[^\\])+?)\|/g,
     /\- ((?:\\[\s\S]|[^\\])+?)([^\n]*)/g,
@@ -55,7 +55,6 @@ function parser(rawtText) {
         const s = symbol[i];
         while (text.match(s)) {
             const match = text.match(s);
-            // console.log(match)
             const type = match[0].charAt(0)
             for (let t = 0; t < match.length; t++) {
                 const e = match[t];
@@ -105,7 +104,6 @@ function createMultimedia(multi, text) {
     const url = el[0]
     let param = el[1] ? el[1].trim() : ''
     let mediaType = url.slice(-1)
-    console.log(param)
     if (param) {
         if (param === "g") {
             param = `autoplay="true" playsinline="true" loop="true" mute="true" preload="metadata"`;
@@ -118,7 +116,6 @@ function createMultimedia(multi, text) {
 
 
     html = ""
-    console.log(mediaType)
     switch (mediaType) {
         case "4":
             html = `<video ${param} src="${url}" type="video/mp4"></video>`
@@ -188,12 +185,7 @@ function createQuote(quote, text) {
     const url = `cite="${el[3].trim()}"`
     const source = `, <cite>${el[2]}</cite>`
     const author = `<footer>—${el[1].trim()}${source}</footer>`
-    const html = `
-        <blockquote ${url}>
-            <p>${citation}</p>
-            ${author}
-        </blockquote>
-    `;
+    const html = `<blockquote ${url}><p>${citation}</p>${author}</blockquote>`;
     return text.replace(quote, html)
 }
 
@@ -207,21 +199,26 @@ function createImages(img, text) {
     let el = img
     el = el.replace("[", "").replace("]", "")
 
-    let caption = `<figcaption>${extractText(el)}</figcaption>`
-    el = el.replace(caption, "")
-
     const imgArr = el.split(",")
+    let imgHtml = ""
 
-    let alt = imgArr.length > 1 ? ` alt="${imgArr[1].trim()}"` : ""
-    let imgHtml = `<img src="${imgArr[0].trim()}"${alt}></img>`
+    if (imgArr.length === 1) {
+        imgHtml = `<img src="${imgArr[0]}">`
+    }
 
-    if (imgArr.length > 2) {
+    if (imgArr.length === 2) {
+        const alt = ` alt="${imgArr[1].trim()}"`
+        imgHtml = `<img src="${imgArr[0].trim()}"${alt}>`
+    }
 
+    if (imgArr.length === 3) {
+        const alt = ` alt="${imgArr[1].trim()}"`
+        imgHtml = `<img src="${imgArr[0]}"${alt}>`
+        const caption = `<figcaption>${extractText(el)}</figcaption>`
         imgHtml = `<figure>${imgHtml}${caption}</figure>`
     }
 
-    let html = imgHtml;
-    return text.replace(img, html)
+    return text.replace(img, imgHtml)
 }
 
 function createLink(link, text) {
@@ -230,10 +227,8 @@ function createLink(link, text) {
     const textLink = extractText(el)
     el = el.replace(textLink, "")
 
-    linkElem = el.split(",")
+    const linkElem = el.split(",")
     const aria = linkElem.length > 2 ? ` aria-label="${linkElem[2].trim()}"` : ""
-    let html = `
-      <a href="${linkElem[0]}"${aria}>${textLink}</a>
-    `;
+    let html = `<a href="${linkElem[0]}"${aria}>${textLink}</a>`;
     return text.replace(link, html)
 }
