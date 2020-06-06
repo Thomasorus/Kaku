@@ -218,7 +218,7 @@ Note: all audio and video elements come with the `preload="metadata"` attribute 
 
 ## Run tests
 
-This projects comes with tests, even if some of them are broken. To run them:
+This projects comes with unit tests. To run them:
 
 - Install with `yarn`
 - Configure tests in `test.js`
