@@ -164,9 +164,20 @@ function createList(el, text, type) {
 
 }
 
+function toKebab(text) {
+    const toKebabCase = text && text
+        .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
+        .map(x => x.toLowerCase())
+        .join('-');
+    return toKebabCase
+}
+
 function createTitle(el, text) {
     const count = (el.match(/#/g)).length;
-    const html = `<h${count}>${el.substring(1 + count).trim()}</h${count}>`
+    const title = el.substring(1 + count).trim()
+    const kebab = toKebab(title)
+    const link = `<a href="#${kebab}" aria-label="${title} permalink" style="display: inline-block;width: 100%;height: 100%;position: absolute;"></a>`
+    const html = `<h${count} id="${kebab}" style="position:relative;">${link}${title}</h${count}>`
     return text.replace(el, html)
 }
 
