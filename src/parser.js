@@ -203,17 +203,17 @@ function createImages(img, text) {
     let imgHtml = ""
 
     if (imgArr.length === 1) {
-        imgHtml = `<img src="${imgArr[0]}">`
+        imgHtml = `<img loading="lazy" src="${imgArr[0]}">`
     }
 
     if (imgArr.length === 2) {
         const alt = ` alt="${imgArr[1].trim()}"`
-        imgHtml = `<img src="${imgArr[0].trim()}"${alt}>`
+        imgHtml = `<img loading="lazy" src="${imgArr[0].trim()}"${alt}>`
     }
 
     if (imgArr.length === 3) {
         const alt = ` alt="${imgArr[1].trim()}"`
-        imgHtml = `<img src="${imgArr[0]}"${alt}>`
+        imgHtml = `<img loading="lazy" src="${imgArr[0]}"${alt}>`
         const caption = `<figcaption>${extractText(el)}</figcaption>`
         imgHtml = `<figure>${imgHtml}${caption}</figure>`
     }
