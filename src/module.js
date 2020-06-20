@@ -129,31 +129,35 @@ function createMultimedia(multi, text) {
 }
 
 function createList(el, text, type) {
-    let tempList = el.split(type).filter(Boolean)
+    let regex = null
     let listType = undefined
     switch (type) {
         case "-":
             listType = "ul"
+            regex = /\- /g
             break;
         case "+":
             listType = "ol"
+            regex = /\+ /g
             break;
         case "?":
             listType = "dl"
+            regex = /\? /g
             break;
     }
 
+    let tempList = el.split(regex).filter(Boolean)
     let html = ""
 
     if (listType === "ul" || listType === "ol") {
         tempList.forEach(item => {
-            html = html + `<li>${item.substring(1).trim()}</li>`
+            html = html + `<li>${item.trim()}</li>`
         });
         html = `<${listType}>${html}</${listType}>\n`
     } else {
         tempList.forEach(item => {
             item = item.split(":")
-            const term = item[0].substring(1).trim()
+            const term = item[0].trim()
             const definition = item[1].trim()
             html = html + `<dt>${term}</dt><dd>${definition}</dd>`
         });
@@ -236,8 +240,6 @@ function createLink(link, text) {
     let el = link
     el = el.replace("{", "").replace("}", "")
     const textLink = extractText(el)
-    el = el.replace(textLink, "")
-
     const linkElem = el.split(",")
     const aria = linkElem.length > 2 ? ` aria-label="${linkElem[2].trim()}"` : ""
     let html = `<a href="${linkElem[0]}"${aria}>${textLink}</a>`;
