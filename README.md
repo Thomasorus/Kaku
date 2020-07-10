@@ -4,6 +4,15 @@ Kaku (write) is my own markup language. It's inspired by Markdown with a few mod
 
 This repositoty contains a parser for Kaku.
 
+## Branches
+
+The parser exists in two branches:
+
+- the `master` branch is the classic parser as explained below
+- the `responsive-lazy-images` is a modified version with more advanced image management, but severely opiniated so it can work with [Ronbun](https://github.com/Thomasorus/Ronbun)
+
+If you are new to Kaku, use the master branch!
+
 ## Syntax
 
 Kaku uses some syntax from Markdown for basic text transformation. However it uses an array like declaration with special characters for things like quotes, links and images.
