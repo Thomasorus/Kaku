@@ -129,7 +129,6 @@ function createMultimedia(multi, text) {
 }
 
 function createList(el, text, type) {
-    console.log(el)
     let regex = null
     let listType = undefined
     switch (type) {
