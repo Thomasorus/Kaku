@@ -1,4 +1,5 @@
 const symbol = [
+    /\? ((?:\\[\s\S]|[^\\])+?)([^\n]*)/g,
     /\*((?:\\[\s\S]|[^\\])+?)\*(?!\*)/g,
     /\b\_((?:\\[\s\S]|[^\\])+?)\_(?!\_\b)/g,
     /(\`+)([\s\S]*?[^`])\1(?!`)/g,
@@ -10,7 +11,6 @@ const symbol = [
     /\|((?:\\[\s\S]|[^\\])+?)\|/g,
     /\- ((?:\\[\s\S]|[^\\])+?)([^\n]*)/g,
     /\+ ((?:\\[\s\S]|[^\\])+?)([^\n]*)/g,
-    /\? ((?:\\[\s\S]|[^\\])+?)([^\n]*)/g,
 ]
 
 function parser(rawtText) {
@@ -129,6 +129,7 @@ function createMultimedia(multi, text) {
 }
 
 function createList(el, text, type) {
+    console.log(el)
     let regex = null
     let listType = undefined
     switch (type) {
