@@ -1,104 +1,192 @@
-const symbol = [
-    /\*((?:\\[\s\S]|[^\\])+?)\*(?!\*)/g,
-    /\b\_((?:\\[\s\S]|[^\\])+?)\_(?!\_\b)/g,
-    /(\`+)([\s\S]*?[^`])\1(?!`)/g,
-    / *(`{3})((?:\\[\s\S]|[^\\])+?) *(`{3})/g,
-    / *(#{1,6}) ([^\n]+?)#* *(?:\n *)+\n/g,
-    /\~((?:\\[\s\S]|[^\\])+?)\,((?:\\[\s\S]|[^\\])+?)\~/g,
-    /\[((?:\\[\s\S]|[^\\])+?)\]/g,
-    /\{((?:\\[\s\S]|[^\\])+?)\}/g,
-    /\|((?:\\[\s\S]|[^\\])+?)\|/g,
-    /\- ((?:\\[\s\S]|[^\\])+?)([^\n]*)/g,
-    /\+ ((?:\\[\s\S]|[^\\])+?)([^\n]*)/g,
-    /\? ((?:\\[\s\S]|[^\\])+?)([^\n]*)/g,
-]
+var preg_replace = function (a, b, c, d) {
+    void 0 === d && (d = -1);
+    var e = a.substr(a.lastIndexOf(a[0]) + 1),
+        f = a.substr(1, a.lastIndexOf(a[0]) - 1),
+        g = RegExp(f, e),
+        i = [],
+        j = 0,
+        k = 0,
+        l = c,
+        m = [];
+    if (-1 === d) {
+        do m = g.exec(c), null !== m && i.push(m); while (null !== m && -1 !== e.indexOf("g"))
+    } else i.push(g.exec(c));
+    for (j = i.length - 1; j > -1; j--) {
+        for (m = b, k = i[j].length; k > -1; k--) m = m.replace("${" + k + "}", i[j][k]).replace("$" + k, i[j][k]).replace("\\" + k, i[j][k]);
+        l = l.replace(i[j][0], m)
+    }
+    return l
+};
 
-function parser(rawtText) {
-    rawtText = rawtText.replace(/\r\n/g, "\n")
-    rawtText = rawtText.split(/\n/g)
-    let text = []
-    const regex = /^\#|^\{|^\[|^\||^\*|^\_|^\`|^\~|^\-|^\+|^\?/g;
-    const regexList = /^\-|^\+|^\?/g;
+var parser = function (str) {
 
-    let acc = []
-    for (let i = 0; i < rawtText.length; i++) {
-        let el = rawtText[i];
-        const firstChar = el.charAt(0)
-        if (firstChar.match(regex)) {
-            if (firstChar.match(regexList)) {
-                acc.push(el)
-                if (i === rawtText.length - 1) {
-                    text.push(acc.join(''))
+    var rules = [
+            // headers
+            ['/(#+)(.*)/g', function (chars, header) {
+                var level = chars.length;
+                return '<h' + level + '>' + header.trim() + '</h' + level + '>';
+            }],
+            //code
+            ['/(\\`)(.*?)\\1/g', '<code>\\2</code>'],
+            // images
+            ['/\\[([^\\[]+)\\]/g', function (item) {
+                return createImages(item)
+            }],
+            // videos
+            ['/\\|([^\\|]+)\\|/g', function (item) {
+                return createMultimedia(item)
+            }],
+            // link
+            ['/\\{([^\\{]+)\\}/g', function (item) {
+                return createLink(item)
+            }],
+            // bold
+            ['/(\\*)(.*?)\\1/g', '<strong>\\2</strong>'],
+            // emphasis
+            ['/(\\_)(.*?)\\1/g', '<em>\\2</em>'],
+            // strike
+            ['/(\\~)(.*?)\\1/g', '<del>\\2</del>'],
+            // quote
+            // ['/\\:\\"(.*?)\\"\\:/g', '<q>\\1</q>'],
+            // unordered list
+            ['/\\n\\-(.*)/g', function (item) {
+                return '<ul>\n<li>' + item.trim() + '</li>\n</ul>';
+            }],
+            // ordered list
+            ['/\\n\\+(.*)/g', function (item) {
+                return '<ol>\n<li>' + item.trim() + '</li>\n</ol>';
+            }],
+            // definition list
+            ['/\\n\\?(.*)/g', function (item) {
+                return createDefinitionList(item)
+            }],
+            // blockquote
+            ['/\\n\\>(.*)/g', function (item) {
+                return createQuote(item);
+            }],
+            // paragraphs
+            ['/\\n[^\\n]+\\n/g', function (line) {
+                line = line.trim();
+                if (line[0] === '<') {
+                    return line;
+                }
+                return '\n<p>' + line + '</p>\n';
+            }]
+        ],
+        fixes = [
+            ['/<\\/ul>\n<ul>/g', '\n'],
+            ['/<\\/ol>\n<ol>/g', '\n'],
+            ['/<\\/dl>\n<dl>/g', '\n'],
+            ['/<\\/blockquote>\n<blockquote>/g', "\n"]
+        ];
+
+    var parse_line = function (str) {
+        str = "\n" + str.trim() + "\n";
+        for (var i = 0, j = rules.length; i < j; i++) {
+
+            if (typeof rules[i][1] == 'function') {
+                var _flag = rules[i][0].substr(rules[i][0].lastIndexOf(rules[i][0][0]) + 1),
+                    _pattern = rules[i][0].substr(1, rules[i][0].lastIndexOf(rules[i][0][0]) - 1),
+                    reg = new RegExp(_pattern, _flag);
+
+
+                var matches = reg.exec(str);
+
+                if (matches !== null) {
+                    if (matches.length > 1) {
+                        str = preg_replace(rules[i][0], rules[i][1](matches[1], matches[2]), str);
+                    } else {
+                        str = preg_replace(rules[i][0], rules[i][1](matches[0]), str);
+                    }
                 }
             } else {
-                if (acc.length) {
-                    text.push(acc.join('') + "\n\n")
-                    acc.length = 0
-                }
-                text.push(el + "\n\n")
-            }
-        } else {
-            if (acc.length) {
-                text.push(acc.join('') + "\n\n")
-                acc.length = 0
-            }
-            if (el.length > 0) {
-                text.push(`<p>${el}</p>`)
-
+                str = preg_replace(rules[i][0], rules[i][1], str);
             }
         }
+        return str.trim();
+    };
+
+    str = str.split('\n');
+    var rtn = [];
+    for (var i = 0, j = str.length; i < j; i++) {
+        rtn.push(parse_line(str[i]));
+    }
+    rtn = rtn.join('\n');
+
+    for (i = 0, j = fixes.length; i < j; i++) {
+        rtn = preg_replace(fixes[i][0], fixes[i][1], rtn);
     }
 
-    text = text.join('')
+    return rtn;
+};
 
-    for (let i = 0; i < symbol.length; i++) {
-        const s = symbol[i];
-        while (text.match(s)) {
-            const match = text.match(s);
-            const type = match[0].charAt(0)
-            for (let t = 0; t < match.length; t++) {
-                const e = match[t];
-                switch (type) {
-                    case "#":
-                        text = createTitle(e, text)
-                        continue
-                    case "*":
-                        text = createTypography(e, text, type, 'strong')
-                        continue
-                    case "_":
-                        text = createTypography(e, text, type, 'em')
-                        continue
-                    case "`":
-                        text = createTypography(e, text, type, "code")
-                        continue
-                    case "~":
-                        text = createQuote(e, text)
-                        continue
-                    case "[":
-                        text = createImages(e, text)
-                        continue
-                    case "{":
-                        text = createLink(e, text)
-                        continue
-                    case "-":
-                    case "+":
-                    case "?":
-                        text = createList(e, text, type)
-                        continue
-                    case "|":
-                        text = createMultimedia(e, text)
-                        continue
-                }
-                return text
-            }
 
-        }
-    }
-    return text
+function extractText(text) {
+    const regexuuu = /\"((?:\\[\s\S]|[^\\])+?)\"(?!\*)/g
+    const match = text.match(regexuuu)[0].replace(/\"/g, "").trim()
+    return match
 }
 
-function createMultimedia(multi, text) {
-    let el = multi
+function createImages(item) {
+    let el = item
+    el = el.replace("[", "").replace("]", "")
+    const imgArr = el.split(",")
+    let imgHtml = ""
+
+    if (imgArr.length === 1) {
+        imgHtml = `<img loading="lazy" src="${imgArr[0]}">`
+    }
+
+    if (imgArr.length === 2) {
+        const alt = ` alt="${imgArr[1].trim()}"`
+        imgHtml = `<img loading="lazy" src="${imgArr[0].trim()}"${alt}>`
+    }
+
+    if (imgArr.length === 3) {
+        const alt = ` alt="${imgArr[1].trim()}"`
+        imgHtml = `<img loading="lazy" src="${imgArr[0]}"${alt}>`
+        const caption = `<figcaption>${extractText(el)}</figcaption>`
+        imgHtml = `<figure>${imgHtml}${caption}</figure>`
+    }
+
+    return imgHtml
+}
+
+function createLink(item) {
+    let el = item
+    el = el.replace("{", "").replace("}", "")
+    const textLink = extractText(el)
+    const linkElem = el.split(",")
+    const aria = linkElem.length > 2 ? ` aria-label="${linkElem[2].trim()}"` : ""
+    let html = `<a href="${linkElem[0]}"${aria}>${textLink}</a>`;
+    return html
+}
+
+function createQuote(item) {
+    let el = item
+    el = el.replace(/\~/g, '')
+    const citation = extractText(el)
+    el = el.replace(citation, "")
+    el = el.split(',')
+    const url = `cite="${el[3].trim()}"`
+    const source = `, <cite>${el[2]}</cite>`
+    const author = `<footer>—${el[1].trim()}${source}</footer>`
+    const html = `<blockquote ${url}><p>${citation}</p>${author}</blockquote>`;
+    return html
+}
+
+function createDefinitionList(item) {
+    let html;
+    item = item.split(":")
+    const term = item[0].trim()
+    const definition = item[1].trim()
+    html = `<dl><dt>${term}</dt><dd>${definition}</dd></dl>`
+    return html
+}
+
+
+function createMultimedia(item) {
+    let el = item
     el = el.replace(/[|]/g, "")
     el = el.split(",")
     const url = el[0]
@@ -125,125 +213,7 @@ function createMultimedia(multi, text) {
         default:
             break;
     }
-    return text.replace(multi, html)
-}
-
-function createList(el, text, type) {
-    let regex = null
-    let listType = undefined
-    switch (type) {
-        case "-":
-            listType = "ul"
-            regex = /\- /g
-            break;
-        case "+":
-            listType = "ol"
-            regex = /\+ /g
-            break;
-        case "?":
-            listType = "dl"
-            regex = /\? /g
-            break;
-    }
-
-    let tempList = el.split(regex).filter(Boolean)
-    let html = ""
-
-    if (listType === "ul" || listType === "ol") {
-        tempList.forEach(item => {
-            html = html + `<li>${item.trim()}</li>`
-        });
-        html = `<${listType}>${html}</${listType}>\n`
-    } else {
-        tempList.forEach(item => {
-            item = item.split(":")
-            const term = item[0].trim()
-            const definition = item[1].trim()
-            html = html + `<dt>${term}</dt><dd>${definition}</dd>`
-        });
-        html = `<${listType}>${html}</${listType}>\n`
-    }
-
-    return text.replace(el, html)
-
-}
-
-function toKebab(text) {
-    const toKebabCase = text && text
-        .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
-        .map(x => x.toLowerCase())
-        .join('-');
-    return toKebabCase
-}
-
-function createTitle(el, text) {
-    const count = (el.match(/#/g)).length;
-    const title = el.substring(1 + count).trim()
-    const kebab = toKebab(title)
-    const link = `<a href="#${kebab}" aria-label="${title} permalink" style="display: inline-block;width: 100%;height: 100%;position: absolute;"></a>`
-    const html = `<h${count} id="${kebab}" style="position:relative;">${link}${title}</h${count}>`
-    return text.replace(el, html)
-}
-
-function createTypography(el, text, type, tag) {
-    let regex = new RegExp(`\\${type}`, 'g');
-    const html = `<${tag}>${el.replace(regex, "")}</${tag}>`;
-    return text.replace(el, html)
-}
-
-function createQuote(quote, text) {
-    let el = quote
-    el = el.replace(/\~/g, '')
-    const citation = extractText(el)
-    el = el.replace(citation, "")
-    el = el.split(',')
-    const url = `cite="${el[3].trim()}"`
-    const source = `, <cite>${el[2]}</cite>`
-    const author = `<footer>—${el[1].trim()}${source}</footer>`
-    const html = `<blockquote ${url}><p>${citation}</p>${author}</blockquote>`;
-    return text.replace(quote, html)
-}
-
-function extractText(text) {
-    const regexuuu = /\"((?:\\[\s\S]|[^\\])+?)\"(?!\*)/g
-    const match = text.match(regexuuu)[0].replace(/\"/g, "").trim()
-    return match
-}
-
-function createImages(img, text) {
-    let el = img
-    el = el.replace("[", "").replace("]", "")
-
-    const imgArr = el.split(",")
-    let imgHtml = ""
-
-    if (imgArr.length === 1) {
-        imgHtml = `<img loading="lazy" src="${imgArr[0]}">`
-    }
-
-    if (imgArr.length === 2) {
-        const alt = ` alt="${imgArr[1].trim()}"`
-        imgHtml = `<img loading="lazy" src="${imgArr[0].trim()}"${alt}>`
-    }
-
-    if (imgArr.length === 3) {
-        const alt = ` alt="${imgArr[1].trim()}"`
-        imgHtml = `<img loading="lazy" src="${imgArr[0]}"${alt}>`
-        const caption = `<figcaption>${extractText(el)}</figcaption>`
-        imgHtml = `<figure>${imgHtml}${caption}</figure>`
-    }
-
-    return text.replace(img, imgHtml)
-}
-
-function createLink(link, text) {
-    let el = link
-    el = el.replace("{", "").replace("}", "")
-    const textLink = extractText(el)
-    const linkElem = el.split(",")
-    const aria = linkElem.length > 2 ? ` aria-label="${linkElem[2].trim()}"` : ""
-    let html = `<a href="${linkElem[0]}"${aria}>${textLink}</a>`;
-    return text.replace(link, html)
+    return html
 }
 
 export {

@@ -1,8 +1,6 @@
 # Kaku 書く
 
-Kaku (write) is my own markup language. It's inspired by Markdown with a few modification for quotes, links, images and lists handling. It was created to fit my needs.
-
-This repositoty contains a parser for Kaku.
+Kaku (write) is my own markup language. It's inspired by Markdown with a few modification for quotes, links, images and lists handling. It was created to fit my needs. This repositoty contains a parser for Kaku.
 
 ## Branches
 
@@ -71,6 +69,16 @@ Will return:
 <code>code</code>
 ```
 
+#### Striked throught
+
+Example : ~strike~
+
+Will return:
+
+```Html
+<code>strike</code>
+```
+
 ### Quotes
 
 Quotes are presented like an array and can take up to 4 arguments:
@@ -80,7 +88,7 @@ Quotes are presented like an array and can take up to 4 arguments:
 3. The source of the quote
 4. The url of the quote
 
-Example: `~ "I am the quoted text!", Author of quote, Source of quote, url_of_quote ~`
+Example: `> "I am the quoted text!", Author of quote, Source of quote, url_of_quote`
 
 Will return:
 
@@ -232,3 +240,7 @@ This projects comes with unit tests. To run them:
 - Install with `yarn`
 - Configure tests in `test.js`
 - Run tests with `npx ava`
+
+## Credits
+
+This project has been redone several time and the current version is based for the parsing part on the [Simple Markdown Parser](https://gist.github.com/fuzzyfox/5843166) of by William Duyck. All the others parts have been done by me.
