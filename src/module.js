@@ -26,6 +26,8 @@ var parser = function (str) {
                 var level = chars.length;
                 return '<h' + level + '>' + header.trim() + '</h' + level + '>';
             }],
+            //code fences
+            ['/`{3,}(?!.*`)/g', '<pre><code>', '</pre></code>'],
             //code
             ['/(\\`)(.*?)\\1/g', '<code>\\2</code>'],
             // images
@@ -67,10 +69,15 @@ var parser = function (str) {
             // paragraphs
             ['/\\n[^\\n]+\\n/g', function (line) {
                 line = line.trim();
-                if (line[0] === '<') {
-                    return line;
+                if (line[0] === '<' || codeblock) {
+                    if(line[0] === '<' && codeblock) {
+                        line = line.replace(/\</g, "<span><</span>")
+                        return line
+                    } else {
+                        return line;
+                    }
                 }
-                return '\n<p>' + line + '</p>\n';
+                return `\n<p>${line}</p>\n`;
             }]
         ],
         fixes = [
@@ -80,8 +87,12 @@ var parser = function (str) {
             ['/<\\/blockquote>\n<blockquote>/g', "\n"]
         ];
 
+    var codeblock = false
+
     var parse_line = function (str) {
-        str = "\n" + str.trim() + "\n";
+
+        str = `\n${str.trim()}\n`;
+        
         for (var i = 0, j = rules.length; i < j; i++) {
 
             if (typeof rules[i][1] == 'function') {
@@ -100,7 +111,16 @@ var parser = function (str) {
                     }
                 }
             } else {
-                str = preg_replace(rules[i][0], rules[i][1], str);
+                if (str === '\n```\n' && codeblock) {
+                    str = rules[i][2]
+                    codeblock = false
+                } else if (str === '\n```\n' && !codeblock) {
+                    str = rules[i][1]
+                    codeblock = true
+                } 
+                else {
+                    str = preg_replace(rules[i][0], rules[i][1], str);
+                }
             }
         }
         return str.trim();
@@ -215,7 +235,6 @@ function createMultimedia(item) {
     }
     return html
 }
-
 export {
     parser
 }
