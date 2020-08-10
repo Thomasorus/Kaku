@@ -69,6 +69,22 @@ Will return:
 <code>code</code>
 ```
 
+#### Code Block
+
+Example:
+
+\`\`\`
+
+This is some code
+
+\`\`\`
+
+Will return:
+
+```
+This is some code
+```
+
 #### Striked throught
 
 Example : ~strike~
