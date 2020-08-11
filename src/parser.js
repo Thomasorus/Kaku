@@ -48,8 +48,6 @@ var parser = function (str) {
             ['/(\\_)(.*?)\\1/g', '<em>\\2</em>'],
             // strike
             ['/(\\~)(.*?)\\1/g', '<del>\\2</del>'],
-            // quote
-            // ['/\\:\\"(.*?)\\"\\:/g', '<q>\\1</q>'],
             // unordered list
             ['/\\n\\-(.*)/g', function (item) {
                 return '<ul>\n<li>' + item.trim() + '</li>\n</ul>';
@@ -70,7 +68,7 @@ var parser = function (str) {
             ['/\\n[^\\n]+\\n/g', function (line) {
                 line = line.trim();
                 if (line[0] === '<' || codeblock) {
-                    if(line[0] === '<' && codeblock) {
+                    if (line[0] === '<' && codeblock) {
                         line = line.replace(/\</g, "<span><</span>")
                         return line
                     } else {
@@ -92,23 +90,37 @@ var parser = function (str) {
     var parse_line = function (str) {
 
         str = `\n${str.trim()}\n`;
-        
+
         for (var i = 0, j = rules.length; i < j; i++) {
 
             if (typeof rules[i][1] == 'function') {
-                var _flag = rules[i][0].substr(rules[i][0].lastIndexOf(rules[i][0][0]) + 1),
-                    _pattern = rules[i][0].substr(1, rules[i][0].lastIndexOf(rules[i][0][0]) - 1),
-                    reg = new RegExp(_pattern, _flag);
+                const _flag = rules[i][0].substr(rules[i][0].lastIndexOf(rules[i][0][0]) + 1)
+                const _pattern = rules[i][0].substr(1, rules[i][0].lastIndexOf(rules[i][0][0]) - 1)
+                const reg = new RegExp(_pattern, _flag);
+                const regNoFlag = new RegExp(_pattern);
 
-
-                var matches = reg.exec(str);
-
-                if (matches !== null) {
-                    if (matches.length > 1) {
-                        str = preg_replace(rules[i][0], rules[i][1](matches[1], matches[2]), str);
-                    } else {
-                        str = preg_replace(rules[i][0], rules[i][1](matches[0]), str);
-                    }
+                const matches = [...str.matchAll(reg)];
+           
+                if (matches.length > 0) {
+                    matches.forEach(match => {
+                        //If more than one occurence on the same line
+                        if(matches.length > 1) {
+                            const rule = rules[i][0].slice(0, -1)
+                            if (match.length > 1) {
+                                str = preg_replace(rule, rules[i][1](match[1], match[2]), str);
+                            } else {
+                                str = preg_replace(rule, rules[i][1](match[0]), str);
+                            }
+                        }
+                        //If only one occurence on the same line
+                        else {
+                            if (match.length > 1) {
+                                str = preg_replace(rules[i][0], rules[i][1](match[1], match[2]), str);
+                            } else {
+                                str = preg_replace(rules[i][0], rules[i][1](match[0]), str);
+                            }
+                        }
+                    })
                 }
             } else {
                 if (str === '\n```\n' && codeblock) {
@@ -117,8 +129,7 @@ var parser = function (str) {
                 } else if (str === '\n```\n' && !codeblock) {
                     str = rules[i][1]
                     codeblock = true
-                } 
-                else {
+                } else {
                     str = preg_replace(rules[i][0], rules[i][1], str);
                 }
             }
@@ -177,7 +188,7 @@ function createLink(item) {
     el = el.replace("{", "").replace("}", "")
     const textLink = extractText(el)
     const linkElem = el.split(",")
-    const aria = linkElem.length > 2 ? ` aria-label="${linkElem[2].trim()}"` : ""
+    const aria = linkElem.length > 2 ? `title="${linkElem[2].trim()}" aria-label="${linkElem[2].trim()}"` : ""
     let html = `<a href="${linkElem[0]}"${aria}>${textLink}</a>`;
     return html
 }
