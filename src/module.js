@@ -29,7 +29,10 @@ var parser = function (str) {
             //code fences
             ['/`{3,}(?!.*`)/g', '<pre><code>', '</pre></code>'],
             //code
-            ['/(\\`)(.*?)\\1/g', '<code>\\2</code>'],
+            ['/(\\`)(.*?)\\1/g', function(char, item) {
+                const code = item.replace(/\</g, "<span><</span>")
+                return `<code>${code}</code>`
+            }],
             // images
             ['/\\[([^\\[]+)\\]/g', function (item) {
                 return createImages(item)
