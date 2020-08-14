@@ -29,7 +29,7 @@ var parser = function (str) {
             //code fences
             ['/`{3,}(?!.*`)/g', '<pre><code>', '</pre></code>'],
             //code
-            ['/(\\`)(.*?)\\1/g', function(char, item) {
+            ['/(\\`)(.*?)\\1/g', function (char, item) {
                 const code = item.replace(/\</g, "<span><</span>")
                 return `<code>${code}</code>`
             }],
@@ -69,14 +69,18 @@ var parser = function (str) {
             }],
             // paragraphs
             ['/\\n[^\\n]+\\n/g', function (line) {
-                line = line.trim();
-                if (line[0] === '<' || codeblock) {
-                    if (line[0] === '<' && codeblock) {
+                if (codeblock) {
+                    line = line.trimStart();
+                    if (line.includes("<")) {
                         line = line.replace(/\</g, "<span><</span>")
                         return line
                     } else {
                         return line;
                     }
+                }
+                line = line.trim();
+                if (line[0] === '<' && !codeblock) {
+                    return line;
                 }
                 return `\n<p>${line}</p>\n`;
             }]
@@ -100,14 +104,13 @@ var parser = function (str) {
                 const _flag = rules[i][0].substr(rules[i][0].lastIndexOf(rules[i][0][0]) + 1)
                 const _pattern = rules[i][0].substr(1, rules[i][0].lastIndexOf(rules[i][0][0]) - 1)
                 const reg = new RegExp(_pattern, _flag);
-                const regNoFlag = new RegExp(_pattern);
 
                 const matches = [...str.matchAll(reg)];
-           
+
                 if (matches.length > 0) {
                     matches.forEach(match => {
                         //If more than one occurence on the same line
-                        if(matches.length > 1) {
+                        if (matches.length > 1) {
                             const rule = rules[i][0].slice(0, -1)
                             if (match.length > 1) {
                                 str = preg_replace(rule, rules[i][1](match[1], match[2]), str);
