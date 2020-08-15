@@ -22,9 +22,9 @@ var parser = function (str) {
 
     var rules = [
             // headers
-            ['/(#+)(.*)/g', function (chars, header) {
+            ['/(#+)(.*)/g', function (chars, item) {
                 var level = chars.length;
-                return '<h' + level + '>' + header.trim() + '</h' + level + '>';
+                return createTitle(level, item)
             }],
             //code fences
             ['/`{3,}(?!.*`)/g', '<pre><code>', '</pre></code>'],
@@ -251,4 +251,22 @@ function createMultimedia(item) {
             break;
     }
     return html
+}
+
+function createTitle(level, item) {
+    const count = level;
+    const title = item.trim()
+    const kebab = toKebab(title)
+    const link = `<a href="#${kebab}" aria-label="${title} permalink" style="display: inline-block;width: 100%;height: 100%;position: absolute;"></a>`
+    const html = `<h${count} id="${kebab}" style="position:relative;">${link}${title}</h${count}>`
+    return html
+}
+
+
+function toKebab(text) {
+    const toKebabCase = text && text
+        .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
+        .map(x => x.toLowerCase())
+        .join('-');
+    return toKebabCase
 }
