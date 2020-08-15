@@ -194,7 +194,7 @@ function createLink(item) {
     el = el.replace("{", "").replace("}", "")
     const textLink = extractText(el)
     const linkElem = el.split(",")
-    const aria = linkElem.length > 2 ? `title="${linkElem[2].trim()}" aria-label="${linkElem[2].trim()}"` : ""
+    const aria = linkElem.length > 2 ? ` title="${linkElem[2].trim()}" aria-label="${linkElem[2].trim()}"` : ""
     let html = `<a href="${linkElem[0]}"${aria}>${textLink}</a>`;
     return html
 }
