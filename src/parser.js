@@ -224,9 +224,8 @@ function createDefinitionList(item) {
 
 function createMultimedia(item) {
     let el = item
-    el = el.replace(/[|]/g, "")
     el = el.split(",")
-    const url = el[0]
+    const url = el[0].trim()
     let param = el[1] ? el[1].trim() : ''
     let mediaType = url.slice(-1)
     if (param) {
@@ -239,8 +238,8 @@ function createMultimedia(item) {
         param = `controls preload="metadata"`
     }
 
-
-    html = ""
+    
+    let html = ""
     switch (mediaType) {
         case "4":
             html = `<video ${param} src="${url}" type="video/mp4"></video>`
