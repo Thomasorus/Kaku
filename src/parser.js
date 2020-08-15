@@ -205,10 +205,10 @@ function createQuote(item) {
     const citation = extractText(el)
     el = el.replace(citation, "")
     el = el.split(',')
-    const url = `cite="${el[3].trim()}"`
-    const source = `, <cite>${el[2]}</cite>`
-    const author = `<footer>—${el[1].trim()}${source}</footer>`
-    const html = `<blockquote ${url}><p>${citation}</p>${author}</blockquote>`;
+    const url = el[3] ? ` cite="${el[3].trim()}"` : ""
+    const source = el[2 ] ? `, <cite>${el[2]}</cite>` : ""
+    const author = el[1] ? `<footer>—${el[1].trim()}${source}</footer>` : ""
+    const html = `<blockquote${url}><p>${citation}</p>${author}</blockquote>`;
     return html
 }
 
