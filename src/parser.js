@@ -22,14 +22,17 @@ var parser = function (str) {
 
     var rules = [
             // headers
-            ['/(#+)(.*)/g', function (chars, header) {
+            ['/(#+)(.*)/g', function (chars, item) {
                 var level = chars.length;
-                return '<h' + level + '>' + header.trim() + '</h' + level + '>';
+                return createTitle(level, item)
             }],
             //code fences
             ['/`{3,}(?!.*`)/g', '<pre><code>', '</pre></code>'],
             //code
-            ['/(\\`)(.*?)\\1/g', '<code>\\2</code>'],
+            ['/(\\`)(.*?)\\1/g', function (char, item) {
+                const code = item.replace(/\</g, "<span><</span>")
+                return `<code>${code}</code>`
+            }],
             // images
             ['/\\[([^\\[]+)\\]/g', function (item) {
                 return createImages(item)
@@ -66,14 +69,18 @@ var parser = function (str) {
             }],
             // paragraphs
             ['/\\n[^\\n]+\\n/g', function (line) {
-                line = line.trim();
-                if (line[0] === '<' || codeblock) {
-                    if (line[0] === '<' && codeblock) {
+                if (codeblock) {
+                    line = line.trimStart();
+                    if (line.includes("<")) {
                         line = line.replace(/\</g, "<span><</span>")
                         return line
                     } else {
                         return line;
                     }
+                }
+                line = line.trim();
+                if (line[0] === '<' && !codeblock) {
+                    return line;
                 }
                 return `\n<p>${line}</p>\n`;
             }]
@@ -97,14 +104,13 @@ var parser = function (str) {
                 const _flag = rules[i][0].substr(rules[i][0].lastIndexOf(rules[i][0][0]) + 1)
                 const _pattern = rules[i][0].substr(1, rules[i][0].lastIndexOf(rules[i][0][0]) - 1)
                 const reg = new RegExp(_pattern, _flag);
-                const regNoFlag = new RegExp(_pattern);
 
                 const matches = [...str.matchAll(reg)];
-           
+
                 if (matches.length > 0) {
                     matches.forEach(match => {
                         //If more than one occurence on the same line
-                        if(matches.length > 1) {
+                        if (matches.length > 1) {
                             const rule = rules[i][0].slice(0, -1)
                             if (match.length > 1) {
                                 str = preg_replace(rule, rules[i][1](match[1], match[2]), str);
@@ -188,7 +194,7 @@ function createLink(item) {
     el = el.replace("{", "").replace("}", "")
     const textLink = extractText(el)
     const linkElem = el.split(",")
-    const aria = linkElem.length > 2 ? `title="${linkElem[2].trim()}" aria-label="${linkElem[2].trim()}"` : ""
+    const aria = linkElem.length > 2 ? ` title="${linkElem[2].trim()}" aria-label="${linkElem[2].trim()}"` : ""
     let html = `<a href="${linkElem[0]}"${aria}>${textLink}</a>`;
     return html
 }
@@ -199,10 +205,10 @@ function createQuote(item) {
     const citation = extractText(el)
     el = el.replace(citation, "")
     el = el.split(',')
-    const url = `cite="${el[3].trim()}"`
-    const source = `, <cite>${el[2]}</cite>`
-    const author = `<footer>—${el[1].trim()}${source}</footer>`
-    const html = `<blockquote ${url}><p>${citation}</p>${author}</blockquote>`;
+    const url = el[3] ? ` cite="${el[3].trim()}"` : ""
+    const source = el[2 ] ? `, <cite>${el[2]}</cite>` : ""
+    const author = el[1] ? `<footer>—${el[1].trim()}${source}</footer>` : ""
+    const html = `<blockquote${url}><p>${citation}</p>${author}</blockquote>`;
     return html
 }
 
@@ -218,9 +224,8 @@ function createDefinitionList(item) {
 
 function createMultimedia(item) {
     let el = item
-    el = el.replace(/[|]/g, "")
     el = el.split(",")
-    const url = el[0]
+    const url = el[0].trim()
     let param = el[1] ? el[1].trim() : ''
     let mediaType = url.slice(-1)
     if (param) {
@@ -233,8 +238,8 @@ function createMultimedia(item) {
         param = `controls preload="metadata"`
     }
 
-
-    html = ""
+    
+    let html = ""
     switch (mediaType) {
         case "4":
             html = `<video ${param} src="${url}" type="video/mp4"></video>`
@@ -245,4 +250,22 @@ function createMultimedia(item) {
             break;
     }
     return html
+}
+
+function createTitle(level, item) {
+    const count = level;
+    const title = item.trim()
+    const kebab = toKebab(title)
+    const link = `<a href="#${kebab}" aria-label="${title} permalink" style="display: inline-block;width: 100%;height: 100%;position: absolute;"></a>`
+    const html = `<h${count} id="${kebab}" style="position:relative;">${link}${title}</h${count}>`
+    return html
+}
+
+
+function toKebab(text) {
+    const toKebabCase = text && text
+        .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
+        .map(x => x.toLowerCase())
+        .join('-');
+    return toKebabCase
 }
