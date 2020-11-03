@@ -89,7 +89,8 @@ var parser = function (str) {
             ['/<\\/ul>\n<ul>/g', '\n'],
             ['/<\\/ol>\n<ol>/g', '\n'],
             ['/<\\/dl>\n<dl>/g', '\n'],
-            ['/<\\/blockquote>\n<blockquote>/g', "\n"]
+            ['/<\\/blockquote>\n<blockquote>/g', "\n"],
+            ['/<pre><code>\n/g', "<pre><code>"]
         ];
 
     var codeblock = false
