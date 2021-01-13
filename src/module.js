@@ -94,7 +94,12 @@ const parser = function (str) {
     ['/<\\/ol>\n<ol>/g', '\n'],
     ['/<\\/dl>\n<dl>/g', '\n'],
     ['/<\\/blockquote>\n<blockquote>/g', '\n'],
-    ['/<pre><code>\n/g', '<pre><code>']
+    ['/<pre><code>\n/g', '<pre><code>'],
+    ['/<em><\\/em>/g', '&#95;&#95;'],
+    ['/<span><</span>em><span><</span>/em>/g', '&#95;&#95;'],
+    ['/ <span><</span>strong> /g', ' * '],
+    ['/ <span><</span>\\/strong> /g', ' * '],
+    ['/&nbsp;/g', '&nbsp;&nbsp;&nbsp;']
   ]
 
   let codeblock = false
