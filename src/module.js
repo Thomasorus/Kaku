@@ -1,27 +1,22 @@
 const pregReplace = function (a, b, c, d) {
-  undefined === d && (d = -1)
-  const e = a.substr(a.lastIndexOf(a[0]) + 1)
-  const f = a.substr(1, a.lastIndexOf(a[0]) - 1)
-  const g = RegExp(f, e)
-  const i = []
-  let j = 0
-  let k = 0
-  let l = c
-  let m = []
-  if (d === -1) {
-    while (m !== null && e.indexOf('g') !== -1) {
-      m = g.exec(c)
-      if (m !== null) {
-        i.push(m)
-      }
-    }
-  } else i.push(g.exec(c))
+  void 0 === d && (d = -1);
+  var e = a.substr(a.lastIndexOf(a[0]) + 1),
+      f = a.substr(1, a.lastIndexOf(a[0]) - 1),
+      g = RegExp(f, e),
+      i = [],
+      j = 0,
+      k = 0,
+      l = c,
+      m = [];
+  if (-1 === d) {
+      do m = g.exec(c), null !== m && i.push(m); while (null !== m && -1 !== e.indexOf("g"))
+  } else i.push(g.exec(c));
   for (j = i.length - 1; j > -1; j--) {
-    for (m = b, k = i[j].length; k > -1; k--) m = m.replace('${' + k + '}', i[j][k]).replace('$' + k, i[j][k]).replace('\\' + k, i[j][k])
-    l = l.replace(i[j][0], m)
+      for (m = b, k = i[j].length; k > -1; k--) m = m.replace("${" + k + "}", i[j][k]).replace("$" + k, i[j][k]).replace("\\" + k, i[j][k]);
+      l = l.replace(i[j][0], m)
   }
   return l
-}
+};
 
 const parser = function (str) {
   const rules = [
