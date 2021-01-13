@@ -38,11 +38,11 @@ const parser = function (str) {
       return `<code>${code}</code>`
     }],
     // images
-    ['/\\[([^\\[]+)\\]/g', function (item) {
+    ['/\\n\\[([^\\[]+)\\]/g', function (item) {
       return createImages(item)
     }],
     // videos
-    ['/\\|([^\\|]+)\\|/g', function (item) {
+    ['/\\n\\|([^\\|]+)\\|/g', function (item) {
       return createMultimedia(item)
     }],
     // link
