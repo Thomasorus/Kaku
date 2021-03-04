@@ -96,7 +96,7 @@ Example : ~strike~
 Will return:
 
 ```Html
-<code>strike</code>
+<del>strike</del>
 ```
 
 ### Quotes
