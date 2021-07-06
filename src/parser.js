@@ -118,12 +118,11 @@ function parseLinks(linkContent) {
 }
 
 function parseImage(imgContent) {
-    const linkData = /^.+?(?=figcaption|(.jpg)|(.jpeg)|(.png)|$)/.exec(imgContent)
-    console.log(linkData)
+    const linkData = /^.+?(?=figcaption|(.jpg)|(.jpeg)|(.png)|alt:|figcaption|$)/.exec(imgContent)
     const altData = /alt:(.+?(?=figcaption|$))/.exec(imgContent)
     const figcaptionData = /figcaption:(.+?(?=alt|$))/.exec(imgContent)
     const link = linkData ? linkData[0].trim() : ""
-    const extension = linkData.filter(Boolean).slice(1).toString()
+    const extension = linkData[1] || linkData[2] || linkData[3] ? linkData[1] || linkData[2] || linkData[3] : ""
     const alt = altData ? `alt="${altData[1].trim()}"` : ""
     const figcaption = figcaptionData ? `<figcaption>${figcaptionData[1].trim()}</figcaption>` : false
 
@@ -135,7 +134,7 @@ function parseImage(imgContent) {
         const html = `<figure><img loading="lazy" src="${link}${extension}" ${alt}>${figcaption}</figure>`
         return html
     } else {
-        const html = `<img loading="lazy"src="${link}${extension}" ${alt}>`
+        const html = `<img loading="lazy" src="${link}${extension}" ${alt}>`
         return html
     }
 }
@@ -149,7 +148,6 @@ function parseVideo(videoContent) {
     const format = /\.mp4|\.webm|\.mov/.exec(link)
     const source = `type="video/${format.toString().slice(1)}"`
     const figcaption = figcaptionData ? `<figcaption>${figcaptionData[1].trim()}</figcaption>` : ""
-    console.log(figcaption)
     const html = `${figcaptionData ? '<figure>' : ''}<video ${controls} preload="metadata" ${link} ${source}></video>${figcaption}${figcaptionData ? "</figure>" : ""}`
     return html
 }
