@@ -118,27 +118,26 @@ function parseLinks(linkContent) {
 }
 
 function parseImage(imgContent) {
-    const linkData = /^(.+?(?=figcaption|.jpg|.jpeg|.png|$))/.exec(imgContent)
-
+    const linkData = /^.+?(?=figcaption|(.jpg)|(.jpeg)|(.png)|$)/.exec(imgContent)
+    console.log(linkData)
     const altData = /alt:(.+?(?=figcaption|$))/.exec(imgContent)
     const figcaptionData = /figcaption:(.+?(?=alt|$))/.exec(imgContent)
-    const matches = imgContent.split(/alt:(\.+?(?=( figcaption:|\)$)))|figcaption:(\.+?(?=( alt:|\)$)))/g)
-    const link = linkData ? linkData[1].trim() : ""
+    const link = linkData ? linkData[0].trim() : ""
+    const extension = linkData.filter(Boolean).slice(1).toString()
     const alt = altData ? `alt="${altData[1].trim()}"` : ""
     const figcaption = figcaptionData ? `<figcaption>${figcaptionData[1].trim()}</figcaption>` : false
 
-    const html = `${figcaption ? '<figure>' : ''}<picture><source type="image/webp" srcset="${link}-240.webp 300w, ${link}-680.webp 600w, ${link}-900.webp 900w, ${link}.webp 1200w" /><img loading="lazy" ${alt ? ` ${alt}` : ''} srcset="${link}-240.jpg 300w, ${link}-680.jpg 600w, ${link}-900.jpg 900w, ${link}.jpg 1200w" src="${link}.jpg"></picture>${figcaption} ${figcaption ? '</figure>' : ''}`
-
+    // Uncomment this for picture + srcset
+    // const html = `${figcaption ? '<figure>' : ''}<picture><source type="image/webp" srcset="${link}-240.webp 300w, ${link}-680.webp 600w, ${link}-900.webp 900w, ${link}.webp 1200w" /><img loading="lazy" ${alt ? ` ${alt}` : ''} srcset="${link}-240${extension} 300w, ${link}-680${extension} 600w, ${link}-900${extension} 900w, ${link}${extension} 1200w" src="${link}${extension}"></picture>${figcaption} ${figcaption ? '</figure>' : ''}`
+    // return html
 
     if (figcaption) {
-        const html = `<figure><img loading="lazy" src="${link}" ${alt}>${figcaption}</figure>`
+        const html = `<figure><img loading="lazy" src="${link}${extension}" ${alt}>${figcaption}</figure>`
         return html
     } else {
-        const html = `<img loading="lazy"src="${link}" ${alt}>`
+        const html = `<img loading="lazy"src="${link}${extension}" ${alt}>`
         return html
     }
-
-    return html
 }
 
 function parseVideo(videoContent) {
