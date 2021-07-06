@@ -25,7 +25,7 @@ function parser(text) {
                 .replace(/\(link:(.*)\)/gim, function (char, item) { return parseLinks(item) }) // links
                 .replace(/\(image:(.*)\)/gim, function (char, item) { return parseImage(item) }) // image
                 .replace(/\(video:(.*)\)/gim, function (char, item) { return parseVideo(item) }) // links
-                .replace(/\(audio:(.*)\)/gim, "<audio controls src='$1' type='audio/mpeg'") // links
+                .replace(/\(audio:(.*)\)/gim, '<audio controls src="$1" type="audio/mpeg" preload="metadata"></audio>') // links
                 .replace(/\(quote:(.*)\)/gim, function (char, item) {return parseQuote(item) }) // blockquote
 
             const htmlRegex = new RegExp("^\<(.*)\>", 'gim')
@@ -95,7 +95,7 @@ function parseVideo(videoContent) {
     const controls = matches[1] ? "autoplay loop mute" : "controls"
     const format = /\.mp4|\.webm|\.mov/.exec(matches[0])
     const source = `type="video/${format}"`
-    const html = `<video ${link} ${controls} ${source}></video>`
+    const html = `<video ${link} ${controls} ${source} preload="metadata" playsinline></video>`
     return html
 }
 

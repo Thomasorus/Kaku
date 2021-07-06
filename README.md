@@ -101,68 +101,68 @@ Will return:
 
 ### Quotes
 
-Quotes are presented like an array and can take up to 4 arguments:
+Quotes can take up to 4 arguments:
 
 1. The quote itself
 2. The author
 3. The source of the quote
 4. The url of the quote
 
-Example: `> "I am the quoted text!", Author of quote, Source of quote, url_of_quote`
+Example: `(quote: I am the quoted text! author: Author of quote source: Source of quote link: url_of_quote`
 
 Will return:
 
 ```Html
-<blockquote cite="url_of_quote">
-    <p>And even, quotes!</p>
-    <footer>—Author, <cite> Source of quote</cite></footer>
-</blockquote>
-```
+<figure>
+    <blockquote cite="url_of_quote">
+        And even, quotes!
+    </blockquote>
+    <figcaption>—Author, <a href="url_of_quote"> Source of quote</a></figcaption>
+</figure>
 
-**Important!** The quoted text must be put between double quotes to allow the use of commas. Example: `"My text is, like, awesome!"`
+```
 
 ### Links
 
-Links are presented like an array and can take up to 3 arguments:
+Links can take up to 3 arguments:
 
 1. The link url
 2. The text of the link
 3. The text for the accessibility label (optionnal)
+4. The text for the title (optionnal)
 
-Example: `{ https://github.com/Thomasorus/Kaku, "check the this link to the repo!", Link to Kaku's repo}`
+Example: `(link: https://github.com/Thomasorus/Kaku text: Check the this link to the repo! label: Link to Kaku's repo title: Hover title)`
 
 Will return:
 
 ```Html
-<a href="https://github.com/Thomasorus/Kaku" aria-label="Link to Kaku's repo">check the this link to the repo!</a>
+<a href="https://github.com/Thomasorus/Kaku" aria-label="Link to Kaku's repo" title="Hover title">Check the this link to the repo!</a>
 ```
-
-**Important!** The embeded text of the link must be put between double quotes to allow the use of commas. Example: `"My repo is, like, awesome!"`
 
 ### Images
 
-Images are presented like an array and can take up to 3 arguments:
+Images can take up to 3 arguments:
 
 1. The image name or url
 2. The image alt text for accessibility
 3. The image caption (optionnal, will create a figure and figcaption)
 
-Image with alt text : `[imgname, altText]`
+Image with alt text : `(image: img_url, alt: the alternate text)`
 
 Will return;
 
 ```Html
-<img src="imgname" alt="altText">
+<img src="img_url" alt="the alternate text">
 ```
 
-Image with caption : `[img_url, My alt text, "This is my, super figcaption text"]`
+Image with caption : `(image: img_url, alt: the alternate text figcaption: the text under the image)`
 
 Will return:
 
  ```Html
  <figure>
-     <img src="img_url" alt="My alt text">
-     <figcaption>This is my super figcaption text</figcaption>
+     <img src="img_url" alt="the alternate text">
+     <figcaption>the text under the image</figcaption>
 </figure>
  ```
 
@@ -222,12 +222,12 @@ Will return:
 
 ### Videos and audios
 
-Videos and audios are presented like an array and can take up to 2 arguments:
+Videos can take up to 2 arguments:
 
-1. The video name or url (in mp4 format for video, mp3 for audio)
+1. The video name or url (mp3 only for audio)
 2. If a video you can add a `g` parameter to use the video as a gif
 
-Classic video: `| videoUrl |`
+Classic video: `(video: videoUrl)`
 
 Will return:
 
@@ -235,7 +235,7 @@ Will return:
 <video controls="" preload="metadata" src="videoUrl" type="video/mp4"></video>
 ```
 
-Video as gif: `| videoUrl, g |`
+Video as gif: `(video: videoUrl autoplay)`
 
 Will return:
 
@@ -243,7 +243,7 @@ Will return:
 <video autoplay="true" playsinline="true" loop="true" mute="true" preload="metadata" src="videoUrl" type="video/mp4"></video>
 ```
 
-Audio: `| audioUrl |`
+Audio: `(audio: audioUrl)`
 
 Will return;
 
@@ -252,6 +252,14 @@ Will return;
 ```
 
 Note: all audio and video elements come with the `preload="metadata"` attribute to help slower connections.
+
+### HR
+
+`----`
+
+Will return:
+
+`<hr>`
 
 ## Run tests
 
