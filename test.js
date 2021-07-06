@@ -5,12 +5,12 @@ import parser from "./src/module"
 
 test("Title 1", t => {
 	const result = parser("# Title 1");
-	t.is(result, `<h1 id="title-1" style="position:relative;"><a href="#title-1" aria-label="Title 1 permalink" style="display: inline-block;width: 100%;height: 100%;position: absolute;"></a>Title 1</h1>`);
+	t.is(result, `<h1 id="title-1" style="position:relative;"><a href="#title-1" aria-label="Title 1 permalink" style="display: inline-block;width: 100%;height: 100%;position: absolute;"></a>Title 1</h1>\n\n`);
 });
 
 test("Title 2", t => {
 	const result = parser("## Title 2");
-	t.is(result, `<h2 id="title-2" style="position:relative;"><a href="#title-2" aria-label="Title 2 permalink" style="display: inline-block;width: 100%;height: 100%;position: absolute;"></a>Title 2</h2>`);
+	t.is(result, `<h2 id="title-2" style="position:relative;"><a href="#title-2" aria-label="Title 2 permalink" style="display: inline-block;width: 100%;height: 100%;position: absolute;"></a>Title 2</h2>\n\n`);
 });
 
 // BLOCKQUOTE
@@ -35,23 +35,23 @@ test("blockquote complete", t => {
 
 test('Bold', t => {
 	const result = parser("Sometimes with *bold* inside.");
-	t.is(result, "<p>Sometimes with <strong>bold</strong> inside.</p>");
+	t.is(result, "<p>Sometimes with <strong>bold</strong> inside.</p>\n\n");
 });
 
 test('code', t => {
 	const result = parser("I do some \`code\` text.");
-	t.is(result, "<p>I do some <code>code</code> text.</p>");
+	t.is(result, "<p>I do some <code>code</code> text.</p>\n\n");
 });
 
 test('strike', t => {
 	const result = parser("I do some \~code\~ text.");
-	t.is(result, "<p>I do some <strike>code</strike> text.</p>");
+	t.is(result, "<p>I do some <del>code</del> text.</p>\n\n");
 });
 
 
 test('italic', t => {
 	const result = parser("Sometimes with _italic_ text?");
-	t.is(result, "<p>Sometimes with <em>italic</em> text?</p>");
+	t.is(result, "<p>Sometimes with <em>italic</em> text?</p>\n\n");
 });
 
 
@@ -59,24 +59,24 @@ test('italic', t => {
 
 test('simple text', t => {
 	const result = parser(`simple text`);
-	t.is(result, "<p>simple text</p>");
+	t.is(result, "<p>simple text</p>\n\n");
 });
 
 test('paragraph', t => {
 	const result = parser(`I am a line\n\nI'm a second line`);
-	t.is(result, "<p>I am a line</p><p>I'm a second line</p>");
+	t.is(result, "<p>I am a line</p>\n\n<p>I'm a second line</p>\n\n");
 });
 
 // CODE BLOCK
 
 test('code block', t => {
 	const result = parser("```\nThis is some code\n```");
-	t.is(result, "<pre><code>This is some code</code></pre>");
+	t.is(result, "<pre><code>This is some code\n</code></pre>\n\n");
 });
 
 test('code block with html', t => {
 	const result = parser("```\n<small>This is some small text</small>\n```");
-	t.is(result, "<pre><code><span><</span>small>This is some small text<span><</span>/small></code></pre>");
+	t.is(result, "<pre><code><span><</span>small>This is some small text<span><</span>/small>\n</code></pre>\n\n");
 });
 
 
@@ -113,17 +113,17 @@ test('Image with alt and caption', t => {
 
 test('Bullet list', t => {
 	const result = parser("- AAA\n- BBB\n- CCC");
-	t.is(result, "<ul><li>AAA</li><li>BBB</li><li>CCC</li></ul>");
+	t.is(result, "<ul><li>AAA</li>\n<li>BBB</li>\n<li>CCC</li></ul>\n\n");
 });
 
 test('Ordered list', t => {
 	const result = parser(`+ Number 1\n+ Number 2\n+ Number 3`);
-	t.is(result, `<ol><li>Number 1</li><li>Number 2</li><li>Number 3</li></ol>`);
+	t.is(result, `<ol><li>Number 1</li>\n<li>Number 2</li>\n<li>Number 3</li></ol>\n\n`);
 });
 
 test('Descriptive list', t => {
 	const result = parser(`? Term 1 : definition 1\n? Term 2 : definition 2`);
-	t.is(result, `<dl><dt>Term 1</dt><dd>definition 1</dd><dt>Term 2</dt><dd>definition 2</dd></dl>`);
+	t.is(result, `<dl><dt>Term 1</dt><dd>definition 1</dd><dt>Term 2</dt><dd>definition 2</dd></dl>\n\n`);
 });
 
 // VIDEO
