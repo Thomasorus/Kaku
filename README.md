@@ -268,7 +268,3 @@ This projects comes with unit tests. To run them:
 - Install with `yarn`
 - Configure tests in `test.js`
 - Run tests with `npx ava`
-
-## Credits
-
-This project has been redone several time and the current version is based for the parsing part on the [Simple Markdown Parser](https://gist.github.com/fuzzyfox/5843166) of by William Duyck. All the others parts have been done by me.
