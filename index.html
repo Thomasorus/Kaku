@@ -75,13 +75,15 @@
 
 Welcome to Kaku's demo! Kaku is my own markup language. It's inspired by Markdown with a few modification for quotes, links, images and lists handling. It was created to fit my needs.
 
-{https://github.com/Thomasorus/Kaku, "Visit the repo for the full documentation.", Link to Kaku's repo}
+(link: https://thomasorus.com label: this is the label title: this is the title text: Visit the repo, for the full documentation )
 
-> "Kaku is mostly used for my static website build.", Thomasorus, Kaku's Repo, https://github.com/Thomasorus/Kaku
+Kaku can do quotes:
+
+(quote: Kaku is mostly used for my static website build. author: Thomasorus source: Kaku's Repo link: https://github.com/Thomasorus/Kaku)
 
 Kaku can do *bold*, _italic_ and `inline code` and ~strike~ text!
 
-Of course lists are possible:
+Kaku can do 3 types of lists:
 
 - Bullet
 - List
@@ -92,22 +94,30 @@ Of course lists are possible:
 ? Term 1 : Definition 1
 ? Term 2 : Definition 2
 
-As for images you can generate classic image tags or figure tags:
+Classic image tags or figure tags:
 
-[https://i.imgur.com/oJXNeQm.jpg, Sailor moon and Bruce Lee, "I am the figcaption!"]
+(image: https://i.imgur.com/oJXNeQm.jpg alt: Sailor moon and Bruce Lee figcaption: I am the figcaption!)
 
 It's also possible to add videos as fake gifs or as real videos:
 
-|https://media.giphy.com/media/bXVAd2ZD5ND9e/giphy.mp4, g|
+(video: https://media.giphy.com/media/bXVAd2ZD5ND9e/giphy.mp4 autoplay)
 
-|https://media.giphy.com/media/bXVAd2ZD5ND9e/giphy.mp4|
+(video: https://media.giphy.com/media/bXVAd2ZD5ND9e/giphy.mp4)
 
 The same syntax is used for mp3 audio:
 
-|https://archive.org/serve/FurEliseLudwigVanBeethoven/fur%20elise%20%28Ludwig%20van%20Beethoven%29.mp3|
+(audio: https://archive.org/serve/FurEliseLudwigVanBeethoven/fur%20elise%20%28Ludwig%20van%20Beethoven%29.mp3)
 
-                        
-                    
+And for nerds, a block of code:
+
+```
+This is an _kaku_ text
+    This is an <em>HTML</em> text
+    display: {
+        none;
+    }
+# End
+```
 </textarea>
     <article></article>
     <script src="./src/parser.js"></script>
