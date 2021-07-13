@@ -27,33 +27,33 @@ function parser(text) {
                     return parseTitles(item, item2)
                 }) // h6 tag
                 .replace(/^----$/gim, '<hr>') // hr tag
-                .replace(/\_(.*?)\_/gim, '<em>$1</em>') // em text
-                .replace(/\*(.*?)\*/gim, '<strong>$1</strong>') // strong text
+                .replace(/^\+ (.*$)/gim, '<ol><li>$1</li></ol>\n\n') // strike text
+                .replace(/^\? (.*) : (.*$)/gim, '<dl><dt>$1</dt><dd>$2</dd></dl>\n\n') // strike text
+                .replace(/^- (.*$)/gim, '<ul><li>$1</li></ul>\n\n') // strike text
                 .replace(/\`(.*?)\`/gim, function (char, item) {
                     if (item.includes('<')) {
                         return `<code>${item.replace(/</g, '<span><</span>')}</code>`
                     } else {
                         return `<code>${item}</code>`
                     }
-                }) // strong text
-                .replace(/\~(.*?)\~/gim, '<del>$1</del>') // strike text
-                .replace(/^- (.*$)/gim, '<ul><li>$1</li></ul>\n\n') // strike text
-                .replace(/^\+ (.*$)/gim, '<ol><li>$1</li></ol>\n\n') // strike text
-                .replace(/^\? (.*) : (.*$)/gim, '<dl><dt>$1</dt><dd>$2</dd></dl>\n\n') // strike text
-                .replace(/\(link:(.*?)\)/gim, function (char, item) {
+                }) // inline code text
+                .replace(/(?<!<code>.+?)\_(.*?)\_(?!.+?<\/code>)/gim, '<em>$1</em>') // em text
+                .replace(/(?<!<code>.+?)\*(.*?)\*(?!.+?<\/code>)/gim, '<strong>$1</strong>') // strong text
+                .replace(/(?<!<code>.+?)\~(.*?)\~(?!.+?<\/code>)/gim, '<del>$1</del>') // strike text
+                .replace(/(?<!<code>.+?)\(link:(.*?)\)(?!.+?<\/code>)/gim, function (char, item) {
                     return parseLinks(item)
                 }) // links
-                .replace(/\(image:(.*?)\)/gim, function (char, item) {
+                .replace(/(?<!<code>.+?)\(image:(.*?)\)(?!.+?<\/code>)/gim, function (char, item) {
                     return parseImage(item)
                 }) // image
-                .replace(/\(video:(.*?)\)/gim, function (char, item) {
+                .replace(/(?<!<code>.+?)\(video:(.*?)\)(?!.+?<\/code>)/gim, function (char, item) {
                     return parseVideo(item)
                 }) // links
-                .replace(/\(audio:(.*?)\)/gim, function (char, item) {
-                    const mp3 = item.trim()
+                .replace(/(?<!<code>.+?)\(audio:(.*?)\)(?!.+?<\/code>)/gim, function (char, item) {
+                const mp3 = item.trim()
                     return `<audio controls src="${mp3}" type="audio/mpeg" preload="metadata"></audio>`
                 }) // links
-                .replace(/\(quote:(.*)\)/gim, function (char, item) {
+                .replace(/(?<!<code>.+?)\(quote:(.*)\)(?!.+?<\/code>)/gim, function (char, item) {
                     return parseQuote(item)
                 }) // blockquote
 
