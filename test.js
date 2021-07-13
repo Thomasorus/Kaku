@@ -69,9 +69,9 @@ test('paragraph', t => {
 
 // INLINE CODE
 
-test('inline code with italics', t => {
-	const result = parser('`footer__link`');
-	t.is(result, "<code>footer__link</code>");
+test('inline code', t => {
+	const result = parser('`footer__link (link: link_url text: textlink) Sometimes with *bold* inside.`');
+	t.is(result, "<code>footer__link (link: link_url text: textlink) Sometimes with *bold* inside.</code>");
 });
 
 // CODE BLOCK
