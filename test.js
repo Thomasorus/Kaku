@@ -67,6 +67,13 @@ test('paragraph', t => {
 	t.is(result, "<p>I am a line</p>\n\n<p>I'm a second line</p>\n\n");
 });
 
+// INLINE CODE
+
+test('inline code', t => {
+	const result = parser('`footer__link (link: link_url text: textlink) Sometimes with *bold* inside.`');
+	t.is(result, "<code>footer__link (link: link_url text: textlink) Sometimes with *bold* inside.</code>");
+});
+
 // CODE BLOCK
 
 test('code block', t => {
