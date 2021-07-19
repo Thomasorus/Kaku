@@ -26,9 +26,6 @@ function parser(text) {
         .replace(/^(######) (.*$)/gim, function (char, item, item2) {
           return parseTitles(item, item2)
         }) // h6 tag
-        .replace(/^----$/gim, '<hr>') // hr tag
-        .replace(/\_(.*?)\_/gim, '<em>$1</em>') // em text
-        .replace(/\*(.*?)\*/gim, '<strong>$1</strong>') // strong text
         .replace(/\`(.*?)\`/gim, function (char, item) {
           if (item.includes('<')) {
             return `<code>${item.replace(/</g, '<span><</span>')}</code>`
@@ -36,6 +33,9 @@ function parser(text) {
             return `<code>${item}</code>`
           }
         }) // strong text
+        .replace(/^----$/gim, '<hr>') // hr tag
+        .replace(/\_(.*?)\_/gim, '<em>$1</em>') // em text
+        .replace(/\*(.*?)\*/gim, '<strong>$1</strong>') // strong text
         .replace(/\~(.*?)\~/gim, '<del>$1</del>') // strike text
         .replace(/^- (.*$)/gim, '<ul><li>$1</li></ul>\n\n') // strike text
         .replace(/^\+ (.*$)/gim, '<ol><li>$1</li></ol>\n\n') // strike text
@@ -93,6 +93,9 @@ function parser(text) {
     .replace(/<p>[\s\S\n]<\/p>/gim, '')
     .replace(/<p><\/p>/g, '')
     .replace(/<\/li><li>/g, '</li>\n<li>')
+    .replace(/<em><\/em>/g, '__')
+    .replace(/<strong><\/strong>/g, '**')
+    .replace(/<del><\/del>/g, '~~')
 
   return cleanedText
 }
