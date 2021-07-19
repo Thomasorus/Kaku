@@ -3,7 +3,7 @@ function parser(text) {
   let parsedText = ''
   for (let i = 0; i < blocks.length; i++) {
     const el = blocks[i];
-    const codeRegex = new RegExp("^\`\`\`(.*$)", 'gim')
+    const codeRegex = new RegExp("^\`\`\`\n(.+)\n\`\`\`", 'sgim')
     const codeTest = codeRegex.test(el)
 
     if (!codeTest) {
@@ -99,6 +99,7 @@ function parser(text) {
 
   return cleanedText
 }
+
 
 function parseTitles(character, titleContent) {
   const lvl = character.length
