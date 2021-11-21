@@ -1,0 +1,112 @@
+%YAML 1.2
+---
+file_extensions:
+  - kaku
+scope: source.example-c
+contexts:
+  main:
+    - match: '^(NAME:)|(HOST:)|(BREF:)|(PRIV:)|(BODY:)'
+      scope: constant.other
+
+    - match: '^(====)'
+      scope: constant.language
+
+    - match: '^(#|##|###|####|#####|######) .*$'
+      captures:
+         1: entity.name.function
+
+    - match: '(\(link:).*?(text\:)|(label\:)|(title\:).*?(\)[\s\n])'
+      captures:
+         1: variable.parameter
+         2: variable.function
+         3: variable.function
+         4: variable.function
+         5: variable.parameter
+
+    - match: '(\(image\:).*?(alt\:)|(figcaption\:).*?(\)[\s\n])'
+      captures:
+         1: variable.parameter
+         2: variable.function
+         3: variable.function
+         4: variable.parameter
+
+    - match: '(\(video\:).*?(autoplay).*?(figcaption\:).*?(\)[\s\n])'
+      captures:
+         1: variable.parameter
+         2: variable.function
+         3: variable.function
+         4: variable.parameter
+
+    - match: '(\(audio\:).*?(\)[\s\n])'
+      captures:
+         1: variable.parameter
+         2: variable.parameter
+
+    - match: '(\*|\_|\~|\`)(?!\`).*(\*|\_|\~|\`)'
+      captures:
+         1: entity.name.function
+         2: entity.name.function
+
+    - match: '(^\?).*?(\:)'
+      captures:
+         1: storage.modifier
+         2: storage.modifier
+
+    - match: '(^\-|^\+)'
+      captures:
+         1: storage.modifier
+
+    - match: '^(\`\`\`\n)'
+      scope: entity.name.function
+
+
+# Common generic scopes used in sublime-syntax / color-scheme
+# comment
+# comment.line
+# constant
+# constant.character
+# constant.character.escape
+# constant.language
+# constant.numeric
+# constant.other
+# constant.other.symbol
+# entity
+# entity.name.class
+# entity.name.filename
+# entity.name.function
+# entity.name.tag
+# entity.name.type.class
+# entity.other.attribute-name
+# entity.other.inherited-class
+# invalid
+# invalid.deprecated
+# keyword
+# keyword.control
+# keyword.control.import
+# keyword.operator
+# keyword.other
+# punctuation
+# punctuation.definition.string.begin
+# punctuation.definition.string.end
+# punctuation.definition.tag
+# punctuation.definition.tag.begin
+# punctuation.definition.tag.end
+# punctuation.definition.variable
+# storage
+# storage.modifier
+# storage.type
+# storage.type.class
+# storage.type.function
+# string
+# string.regexp
+# support
+# support.class
+# support.constant
+# support.function
+# support.other.variable
+# support.type
+# variable
+# variable.function
+# variable.language
+# variable.other
+# variable.parameter
