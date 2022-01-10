@@ -2,47 +2,50 @@
 ---
 file_extensions:
   - kaku
-scope: source.example-c
+scope: license
 contexts:
   main:
-    - match: '^(NAME:)|(HOST:)|(BREF:)|(PRIV:)|(BODY:)'
+    - match: '^(NAME:)|(HOST:)|(BREF:)|(PRIV:)|(BODY:)|(MENU:)'
       scope: constant.other
 
     - match: '^(====)'
+      scope: constant.language
+
+    - match: '^(----)'
       scope: constant.language
 
     - match: '^(#|##|###|####|#####|######) .*$'
       captures:
          1: entity.name.function
 
-    - match: '(\(link:).*?(text\:)|(label\:)|(title\:).*?(\)[\s\n])'
+    - match: '(\(link:).*?(text:).*?(?<=)(title:).*?(?<=)(label:).*?(\)\n|\) )'
       captures:
-         1: variable.parameter
-         2: variable.function
-         3: variable.function
-         4: variable.function
-         5: variable.parameter
+         1: constant.character
+         2: constant.character
+         3: constant.character
+         4: constant.character
+         5: constant.character
 
-    - match: '(\(image\:).*?(alt\:)|(figcaption\:).*?(\)[\s\n])'
+    - match: '(\(image:).*?(alt:).*?(?<=)(figcaption:).*?(\)\n|\) )'
       captures:
-         1: variable.parameter
-         2: variable.function
-         3: variable.function
-         4: variable.parameter
+         1: constant.character
+         2: constant.character
+         3: constant.character
+         4: constant.character
 
-    - match: '(\(video\:).*?(autoplay).*?(figcaption\:).*?(\)[\s\n])'
+    - match: '(\(video:).*?(?<=)(autoplay).*?(?<=)(figcaption:).*?(\)\n|\) )'
       captures:
-         1: variable.parameter
-         2: variable.function
-         3: variable.function
-         4: variable.parameter
+         1: constant.character
+         2: constant.character
+         3: constant.character
+         4: constant.character
 
     - match: '(\(audio\:).*?(\)[\s\n])'
       captures:
-         1: variable.parameter
-         2: variable.parameter
+         1: constant.character
+         2: constant.character
 
-    - match: '(\*|\_|\~|\`)(?!\`).*(\*|\_|\~|\`)'
+    - match: '(\*|\_|\~|\`)(?!\`).*?(\*|\_|\~|\`)'
       captures:
          1: entity.name.function
          2: entity.name.function
@@ -110,3 +113,113 @@ contexts:
 # variable.language
 # variable.other
 # variable.parameter
+
+
+# font
+# license
+# source.actionscript.2
+# source.applescript
+# source.asp
+# source.c
+# source.c++
+# source.camlp4.ocaml
+# source.clojure
+# source.cmake
+# source.coffee
+# source.cs
+# source.css
+# source.d
+# source.diff
+# source.disasm
+# source.dockerfile
+# source.dosbatch
+# source.dot
+# source.erlang
+# source.gdb.session
+# source.gdbregs
+# source.git
+# source.go
+# source.gradle
+# source.groovy
+# source.gruntfile.coffee
+# source.gruntfile.js
+# source.gulpfile.coffee
+# source.gulpfile.js
+# source.haskell
+# source.ini
+# source.ini.editorconfig
+# source.jade
+# source.java
+# source.java-props
+# source.jl
+# source.js
+# source.js.rails
+# source.json
+# source.json.bower
+# source.json.npm
+# source.jsx
+# source.less
+# source.lisp
+# source.lua
+# source.makefile
+# source.matlab
+# source.nant-build
+# source.objc
+# source.objc++
+# source.ocaml
+# source.ocamllex
+# source.ocamlyacc
+# source.pascal
+# source.perl
+# source.php
+# source.procfile
+# source.puppet
+# source.pyjade
+# source.python
+# source.qml
+# source.r
+# source.r-console
+# source.regexp
+# source.regexp.python
+# source.ruby
+# source.ruby.rails
+# source.rust
+# source.sass
+# source.scala
+# source.scss
+# source.shell
+# source.sql
+# source.sql.ruby
+# source.stylus
+# source.swift
+# source.tcl
+# source.yaml
+# source.zen.5a454e6772616d6d6172
+# text.bibtex
+# text.haml
+# text.html.asp
+# text.html.basic
+# text.html.erlang.yaws
+# text.html.javadoc
+# text.html.jsp
+# text.html.markdown
+# text.html.markdown.multimarkdown
+# text.html.mustache
+# text.html.ruby
+# text.html.tcl
+# text.html.textile
+# text.html.twig
+# text.log.latex
+# text.plain
+# text.restructuredtext
+# text.slim
+# text.tex
+# text.tex.latex
+# text.tex.latex.beamer
+# text.tex.latex.haskell
+# text.tex.latex.memoir
+# text.tex.latex.rd
+# text.tex.math
+# text.todo
+# text.xml
+# text.xml.xsl
