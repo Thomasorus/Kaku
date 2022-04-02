@@ -223,4 +223,3 @@ function toKebab(text) {
       .join("-");
   return toKebabCase;
 }
-export { parser as default };
