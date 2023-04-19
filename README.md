@@ -77,13 +77,11 @@ Will return:
 
 Example:
 
-```
 \`\`\`
 
 This is some code
 
 \`\`\`
-```
 
 Will return:
 
