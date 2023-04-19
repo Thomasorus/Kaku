@@ -65,7 +65,7 @@ Will return:
 
 #### Code
 
-Example : `code`
+Example : \`code\`
 
 Will return:
 
@@ -89,9 +89,9 @@ Will return:
 This is some code
 ```
 
-#### Striked throught
+#### Striked through
 
-Example : ~strike~
+Example : `~strike~`
 
 Will return:
 
@@ -124,7 +124,7 @@ Will return:
 
 ### Links
 
-Links can take up to 3 arguments:
+Links can take up to 4 arguments:
 
 1. The link url
 2. The text of the link
