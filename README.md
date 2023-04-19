@@ -65,7 +65,7 @@ Will return:
 
 #### Code
 
-Example : ` \`code\` `
+Example : \`code\`
 
 Will return:
 
